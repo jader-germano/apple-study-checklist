@@ -1,8 +1,5 @@
 .DS_Store
-
 .build/
-.swiftpm/
-
-*.xcodeproj/
-*.xcworkspace/
-xcuserdata/
+.swiftpm/xcode/
+.swiftpm/configuration/registries.json
+Package.resolved
