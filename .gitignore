@@ -3,3 +3,6 @@
 .swiftpm/xcode/
 .swiftpm/configuration/registries.json
 Package.resolved
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
