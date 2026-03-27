@@ -1,76 +1,88 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @ObservedObject var store: StudyStore
-    @ObservedObject var vaultStore: VaultStore
     @State private var selectedWeekID: String?
 
-    init(store: StudyStore, vaultStore: VaultStore) {
-        self.store = store
-        self.vaultStore = vaultStore
-        _selectedWeekID = State(initialValue: store.program.weeks.first?.id)
+    var body: some View {
+        TabView {
+            StudyPlanView(store: store, selectedWeekID: $selectedWeekID)
+                .tabItem {
+                    Label(store.labels.planTabTitle, systemImage: "checklist")
+                }
+
+            VaultLibraryView(store: store)
+                .tabItem {
+                    Label(store.labels.vaultTabTitle, systemImage: "folder")
+                }
+        }
+        .preferredColorScheme(store.appearance.colorScheme)
+        .fileImporter(
+            isPresented: $store.isImportingVault,
+            allowedContentTypes: [.folder],
+            allowsMultipleSelection: false
+        ) { result in
+            store.handleVaultImport(result)
+        }
+        .alert(
+            "Apple Study Checklist",
+            isPresented: Binding(
+                get: { store.lastErrorMessage != nil },
+                set: { isPresented in
+                    if isPresented == false {
+                        store.lastErrorMessage = nil
+                    }
+                }
+            )
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(store.lastErrorMessage ?? "")
+        }
+        .onAppear {
+            if selectedWeekID == nil {
+                selectedWeekID = store.program.weeks.first?.id
+            }
+        }
+        .onChange(of: store.program.weeks.map(\.id)) { _, weekIDs in
+            if let selectedWeekID, weekIDs.contains(selectedWeekID) {
+                return
+            }
+            self.selectedWeekID = weekIDs.first
+        }
     }
+}
+
+private struct StudyPlanView: View {
+    @ObservedObject var store: StudyStore
+    @Binding var selectedWeekID: String?
 
     private var selectedWeek: WeekPlan? {
         store.program.weeks.first { $0.id == selectedWeekID }
     }
 
     var body: some View {
-        TabView {
-            checklistWorkspace
-                .tabItem {
-                    Label("Checklist", systemImage: "checklist")
-                }
-
-            VaultWorkspaceView(vaultStore: vaultStore)
-                .tabItem {
-                    Label("Vault", systemImage: "folder")
-                }
-        }
-        .onAppear {
-            syncSelection()
-        }
-        .onChange(of: store.program.weeks.map(\.id)) { _, _ in
-            syncSelection()
-        }
-        .frame(minWidth: 1100, minHeight: 760)
-    }
-
-    private var checklistWorkspace: some View {
         NavigationSplitView {
             List(store.program.weeks, selection: $selectedWeekID) { week in
                 WeekRowView(week: week, progress: store.progress(for: week))
                     .tag(week.id)
             }
-            .navigationTitle("Plano")
+            .navigationTitle(store.labels.planNavigationTitle)
         } detail: {
             if let week = selectedWeek {
-                WeekDetailView(
-                    program: store.program,
-                    week: week,
-                    store: store
-                )
+                WeekDetailView(program: store.program, week: week, store: store)
             } else {
                 ContentUnavailableView(
-                    "Selecione uma semana",
+                    store.labels.selectWeekTitle,
                     systemImage: "list.bullet.rectangle.portrait",
-                    description: Text("O cronograma de estudo aparece por semana com checklist e referências.")
+                    description: Text(store.labels.selectWeekDescription)
                 )
             }
         }
-    }
-
-    private func syncSelection() {
-        guard store.program.weeks.isEmpty == false else {
-            selectedWeekID = nil
-            return
+        .toolbar {
+            StudyWorkspaceToolbar(store: store)
         }
-
-        if let selectedWeekID, store.program.weeks.contains(where: { $0.id == selectedWeekID }) {
-            return
-        }
-
-        self.selectedWeekID = store.program.weeks.first?.id
     }
 }
 
@@ -107,6 +119,7 @@ private struct WeekDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 header
+                studyGuide
                 references
                 glossary
                 days
@@ -116,7 +129,7 @@ private struct WeekDetailView: View {
         }
         .navigationTitle("Semana \(week.weekNumber)")
         .toolbar {
-            Button("Resetar semana") {
+            Button(store.labels.resetWeekAction) {
                 store.reset(week)
             }
         }
@@ -142,13 +155,32 @@ private struct WeekDetailView: View {
         }
     }
 
+    private var studyGuide: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(store.labels.studyGuideTitle)
+                .font(.title2.bold())
+
+            if week.studyText.isEmpty {
+                Text(week.objective)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text(markdownAttributedString(week.studyText))
+                    .textSelection(.enabled)
+            }
+        }
+    }
+
     private var references: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Referências")
+            Text(store.labels.referencesTitle)
                 .font(.title2.bold())
 
             ForEach(week.references) { reference in
-                Link(destination: URL(string: reference.url)!) {
+                if let url = URL(string: reference.url) {
+                    Link(destination: url) {
+                        Label(reference.title, systemImage: "link")
+                    }
+                } else {
                     Label(reference.title, systemImage: "link")
                 }
             }
@@ -157,7 +189,7 @@ private struct WeekDetailView: View {
 
     private var glossary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Glossário base")
+            Text(store.labels.glossaryTitle)
                 .font(.title2.bold())
 
             FlowLayout(items: week.glossary) { term in
@@ -172,7 +204,7 @@ private struct WeekDetailView: View {
 
     private var days: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Checklist diário")
+            Text(store.labels.dailyChecklistTitle)
                 .font(.title2.bold())
 
             ForEach(week.days) { day in
@@ -181,10 +213,15 @@ private struct WeekDetailView: View {
                     day: day,
                     completedCount: store.completedCount(for: day),
                     totalCount: day.tasks.count,
+                    outputLabel: store.labels.outputLabel,
                     store: store
                 )
             }
         }
+    }
+
+    private func markdownAttributedString(_ text: String) -> AttributedString {
+        (try? AttributedString(markdown: text)) ?? AttributedString(text)
     }
 }
 
@@ -193,6 +230,7 @@ private struct DayCardView: View {
     let day: StudyDayPlan
     let completedCount: Int
     let totalCount: Int
+    let outputLabel: String
     @ObservedObject var store: StudyStore
 
     private var dateText: String {
@@ -228,16 +266,174 @@ private struct DayCardView: View {
                 Divider()
 
                 ForEach(day.tasks) { task in
-                    Toggle(isOn: store.binding(for: task.id)) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(task.title)
-                            Text(task.note)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                    taskToggle(task: task)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func taskToggle(task: StudyTask) -> some View {
+        Toggle(isOn: store.binding(for: task.id)) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(task.title)
+                Text(task.note)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+#if os(macOS)
+        .toggleStyle(.checkbox)
+#endif
+    }
+}
+
+private struct VaultLibraryView: View {
+    @ObservedObject var store: StudyStore
+
+    private var selectedFilePathBinding: Binding<String?> {
+        Binding(
+            get: { store.selectedFile?.relativePath },
+            set: { store.openSelectedFile(relativePath: $0) }
+        )
+    }
+
+    var body: some View {
+        NavigationSplitView {
+            List(store.vaultFiles, selection: selectedFilePathBinding) { file in
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(file.displayName)
+                    Text(file.relativePath)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .tag(file.relativePath)
+            }
+            .navigationTitle(store.labels.vaultFilesTitle)
+        } detail: {
+            if let file = store.selectedFile {
+                VaultEditorDetailView(store: store, file: file)
+            } else {
+                ContentUnavailableView(
+                    store.labels.noFileSelectedTitle,
+                    systemImage: "doc.text.magnifyingglass",
+                    description: Text(store.labels.noFileSelectedDescription)
+                )
+            }
+        }
+        .toolbar {
+            StudyWorkspaceToolbar(store: store)
+        }
+        .overlay(alignment: .bottomLeading) {
+            if store.isVaultEditable == false {
+                Text(store.labels.readOnlyNotice)
+                    .font(.footnote)
+                    .padding(12)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .padding()
+            }
+        }
+    }
+}
+
+private struct VaultEditorDetailView: View {
+    @ObservedObject var store: StudyStore
+    let file: VaultFileEntry
+    @State private var mode = EditorMode.preview
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(file.displayName)
+                    .font(.title2.bold())
+                Text(file.relativePath)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Picker(store.labels.vaultEditorTitle, selection: $mode) {
+                ForEach(EditorMode.allCases) { option in
+                    Text(option.title(labels: store.labels)).tag(option)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            Group {
+                switch mode {
+                case .preview:
+                    ScrollView {
+                        Text(markdownAttributedString(store.selectedFileContent))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
+                case .edit:
+                    TextEditor(text: $store.selectedFileContent)
+                        .font(.body.monospaced())
+                        .disabled(store.isVaultEditable == false)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+            HStack {
+                Text("\(store.labels.sourceLabel): \(store.sourceDescription)")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button(store.labels.saveFileAction) {
+                    store.saveSelectedFile()
+                }
+                .disabled(store.isVaultEditable == false || store.selectedFile == nil)
+            }
+        }
+        .padding(20)
+        .navigationTitle(store.labels.vaultLibraryTitle)
+    }
+
+    private func markdownAttributedString(_ text: String) -> AttributedString {
+        (try? AttributedString(markdown: text)) ?? AttributedString(text)
+    }
+}
+
+private struct StudyWorkspaceToolbar: ToolbarContent {
+    let store: StudyStore
+
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                Section(store.labels.sourceLabel) {
+                    Text(store.sourceDescription)
+                }
+
+                Button(store.labels.makeEditableAction) {
+                    store.createEditableVaultFromBundle()
+                }
+
+                Button(store.labels.chooseFolderAction) {
+                    store.chooseVaultFolder()
+                }
+
+                Button(store.labels.resetToBundledAction) {
+                    store.resetToBundledVault()
+                }
+
+                Button(store.labels.reloadVaultAction) {
+                    store.reloadWorkspace()
+                }
+
+                Section(store.labels.appearanceLabel) {
+                    Picker(store.labels.appearanceLabel, selection: Binding(
+                        get: { store.appearance },
+                        set: { store.updateAppearance($0) }
+                    )) {
+                        ForEach(AppearanceMode.allCases) { mode in
+                            Text(mode.displayName).tag(mode)
                         }
                     }
-                    .toggleStyle(.checkbox)
                 }
+            } label: {
+                Label("Workspace", systemImage: "slider.horizontal.3")
             }
         }
     }
@@ -248,12 +444,26 @@ private struct FlowLayout<Item: Hashable, Content: View>: View {
     let content: (Item) -> Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 120), alignment: .leading)], alignment: .leading, spacing: 8) {
-                ForEach(items, id: \.self) { item in
-                    content(item)
-                }
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120), alignment: .leading)], alignment: .leading, spacing: 8) {
+            ForEach(items, id: \.self) { item in
+                content(item)
             }
+        }
+    }
+}
+
+private enum EditorMode: String, CaseIterable, Identifiable {
+    case preview
+    case edit
+
+    var id: String { rawValue }
+
+    func title(labels: StudyLabels) -> String {
+        switch self {
+        case .preview:
+            return labels.previewModeTitle
+        case .edit:
+            return labels.editModeTitle
         }
     }
 }

@@ -1,0 +1,23 @@
+# Engineering Foundation
+
+This folder is the pre-implementation gate for `apple-study-checklist`.
+
+Every new feature should pass through these artifacts before code changes:
+
+1. user story or workflow update
+2. design and UI impact note
+3. TDD plan with the first failing test
+4. implementation slice
+5. refactor and documentation update
+
+## Files
+
+- `tdd-workflow.md`: execution model for red-green-refactor in this repo
+- `project-patterns.md`: architecture and project patterns to keep stable
+
+## Current scope
+
+- Preserve the current app behavior while increasing testability
+- Keep markdown-backed study content as the product direction
+- Treat the vault workspace as a first-class workflow
+- Prepare platform expansion without forking the product

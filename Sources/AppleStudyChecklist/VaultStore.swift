@@ -1,8 +1,7 @@
-import Foundation
-import SwiftUI
 #if os(macOS)
 import AppKit
-#endif
+import Foundation
+import SwiftUI
 
 struct VaultDocument: Identifiable, Hashable {
     let url: URL
@@ -279,3 +278,4 @@ final class VaultStore: ObservableObject {
         return (process.terminationStatus, stdout, stderr)
     }
 }
+#endif

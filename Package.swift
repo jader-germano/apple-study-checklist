@@ -5,7 +5,8 @@ import PackageDescription
 let package = Package(
     name: "AppleStudyChecklist",
     platforms: [
-        .macOS(.v14)
+        .macOS(.v14),
+        .iOS(.v17)
     ],
     products: [
         .executable(
@@ -16,7 +17,15 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "AppleStudyChecklist",
-            path: "Sources/AppleStudyChecklist"
+            path: "Sources/AppleStudyChecklist",
+            resources: [
+                .process("Resources")
+            ]
+        ),
+        .testTarget(
+            name: "AppleStudyChecklistTests",
+            dependencies: ["AppleStudyChecklist"],
+            path: "Tests/AppleStudyChecklistTests"
         )
     ]
 )

@@ -17,6 +17,18 @@ App macOS em SwiftUI para acompanhar um cronograma de estudo focado em sistema o
 2. Ou rode pelo terminal:
    - `swift run`
 
+## Documentacao de trabalho
+
+- `docs/engineering/README.md`
+- `docs/engineering/tdd-workflow.md`
+- `docs/engineering/project-patterns.md`
+- `docs/product/user-story-map.md`
+- `docs/product/dos-and-donts.md`
+- `docs/design/figma-prototype-brief.md`
+- `docs/design/system-ui-ux-spec.md`
+
+Novas features devem nascer a partir dessa base: historia, criterio, teste falhando primeiro, implementacao minima e refactor.
+
 ## Persistência
 
 O progresso do checklist é salvo em:

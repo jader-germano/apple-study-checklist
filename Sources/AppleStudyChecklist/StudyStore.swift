@@ -4,13 +4,48 @@ import SwiftUI
 @MainActor
 final class StudyStore: ObservableObject {
     @Published private(set) var program = StudyCatalog.program
+    @Published private(set) var labels = StudyLabels.default
+    @Published private(set) var vaultFiles: [VaultFileEntry] = []
+    @Published private(set) var sourceDescription = "Vault integrado"
+    @Published private(set) var isVaultEditable = false
+    @Published private(set) var selectedFile: VaultFileEntry?
+    @Published var selectedFileContent = ""
+    @Published var appearance: AppearanceMode
+    @Published var isImportingVault = false
+    @Published var lastErrorMessage: String?
     @Published private var completedTaskIDs: Set<String> = []
 
     private let saveURL: URL
+    private let defaults: UserDefaults
+    private let bundledVaultURL: URL?
 
-    init() {
-        self.saveURL = Self.makeSaveURL()
-        load()
+    private enum DefaultsKey {
+        static let progress = "study-progress"
+        static let appearance = "study-appearance"
+        static let vaultMode = "vault-mode"
+        static let externalBookmark = "vault-external-bookmark"
+    }
+
+    private enum VaultMode: String {
+        case bundled
+        case appSupport
+        case external
+    }
+
+    init(
+        saveURL: URL? = nil,
+        defaults: UserDefaults = .standard,
+        bundledVaultURL: URL? = StudyVaultLoader.bundledVaultURL(),
+        loadWorkspaceOnInit: Bool = true
+    ) {
+        self.saveURL = saveURL ?? Self.makeSaveURL()
+        self.defaults = defaults
+        self.bundledVaultURL = bundledVaultURL
+        self.appearance = Self.loadAppearance(from: defaults)
+        loadProgress()
+        if loadWorkspaceOnInit {
+            reloadWorkspace()
+        }
     }
 
     func isCompleted(_ taskID: String) -> Bool {
@@ -26,7 +61,7 @@ final class StudyStore: ObservableObject {
                 } else {
                     self.completedTaskIDs.remove(taskID)
                 }
-                self.save()
+                self.saveProgress()
             }
         )
     }
@@ -45,10 +80,166 @@ final class StudyStore: ObservableObject {
     func reset(_ week: WeekPlan) {
         let ids = Set(week.days.flatMap(\.tasks).map(\.id))
         completedTaskIDs.subtract(ids)
-        save()
+        saveProgress()
     }
 
-    private func load() {
+    func updateAppearance(_ mode: AppearanceMode) {
+        appearance = mode
+        defaults.set(mode.rawValue, forKey: DefaultsKey.appearance)
+    }
+
+    func openSelectedFile(relativePath: String?) {
+        guard let relativePath else {
+            selectedFile = nil
+            selectedFileContent = ""
+            return
+        }
+
+        guard let file = vaultFiles.first(where: { $0.relativePath == relativePath }) else {
+            selectedFile = nil
+            selectedFileContent = ""
+            return
+        }
+
+        selectedFile = file
+        do {
+            selectedFileContent = try withScopedAccess(to: file.url) {
+                try String(contentsOf: file.url, encoding: .utf8)
+            }
+        } catch {
+            selectedFileContent = ""
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    func saveSelectedFile() {
+        guard let selectedFile else { return }
+        guard isVaultEditable else {
+            lastErrorMessage = labels.readOnlyNotice
+            return
+        }
+
+        do {
+            try withScopedAccess(to: selectedFile.url) {
+                try selectedFileContent.write(to: selectedFile.url, atomically: true, encoding: .utf8)
+            }
+            reloadWorkspace(preservingFile: selectedFile.relativePath)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    func createEditableVaultFromBundle() {
+        guard let bundledURL = bundledVaultURL else {
+            lastErrorMessage = "Não foi possível localizar o vault integrado."
+            return
+        }
+
+        let targetURL = Self.makeEditableVaultURL()
+        do {
+            let manager = FileManager.default
+            if manager.fileExists(atPath: targetURL.path) == false {
+                try manager.copyItem(at: bundledURL, to: targetURL)
+            }
+
+            defaults.set(VaultMode.appSupport.rawValue, forKey: DefaultsKey.vaultMode)
+            reloadWorkspace()
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    func chooseVaultFolder() {
+        isImportingVault = true
+    }
+
+    func handleVaultImport(_ result: Result<[URL], Error>) {
+        isImportingVault = false
+
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else {
+                lastErrorMessage = "Nenhuma pasta foi selecionada."
+                return
+            }
+            do {
+                let bookmark = try makeBookmark(for: url)
+                defaults.set(bookmark, forKey: DefaultsKey.externalBookmark)
+                defaults.set(VaultMode.external.rawValue, forKey: DefaultsKey.vaultMode)
+                reloadWorkspace()
+            } catch {
+                lastErrorMessage = error.localizedDescription
+            }
+        case .failure(let error):
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    func resetToBundledVault() {
+        defaults.set(VaultMode.bundled.rawValue, forKey: DefaultsKey.vaultMode)
+        defaults.removeObject(forKey: DefaultsKey.externalBookmark)
+        reloadWorkspace()
+    }
+
+    func reloadWorkspace() {
+        reloadWorkspace(preservingFile: selectedFile?.relativePath)
+    }
+
+    private func reloadWorkspace(preservingFile relativePath: String?) {
+        do {
+            let source = try resolveVaultSource()
+            let payload = try withScopedAccess(to: source.url) {
+                try StudyVaultLoader.load(from: source.url)
+            }
+            program = payload.workspace.program
+            labels = payload.workspace.labels
+            vaultFiles = payload.files
+            isVaultEditable = source.isEditable
+            sourceDescription = source.description
+            openSelectedFile(relativePath: relativePath)
+        } catch {
+            program = StudyCatalog.program
+            labels = .default
+            vaultFiles = []
+            selectedFile = nil
+            selectedFileContent = ""
+            isVaultEditable = false
+            sourceDescription = "Fallback embutido"
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func resolveVaultSource() throws -> (url: URL, isEditable: Bool, description: String) {
+        let mode = VaultMode(rawValue: defaults.string(forKey: DefaultsKey.vaultMode) ?? "") ?? .bundled
+        switch mode {
+        case .bundled:
+            guard let url = bundledVaultURL else {
+                throw CocoaError(.fileNoSuchFile)
+            }
+            return (url, false, "Vault integrado ao app")
+        case .appSupport:
+            let url = Self.makeEditableVaultURL()
+            return (url, true, "Vault local em Application Support")
+        case .external:
+            guard
+                let data = defaults.data(forKey: DefaultsKey.externalBookmark)
+            else {
+                throw CocoaError(.fileReadNoSuchFile)
+            }
+
+            var isStale = false
+            let url = try resolveBookmark(data, isStale: &isStale)
+
+            if isStale {
+                let refreshed = try makeBookmark(for: url)
+                defaults.set(refreshed, forKey: DefaultsKey.externalBookmark)
+            }
+
+            return (url, true, "Vault externo conectado")
+        }
+    }
+
+    private func loadProgress() {
         guard
             let data = try? Data(contentsOf: saveURL),
             let payload = try? JSONDecoder().decode(PersistedProgress.self, from: data)
@@ -59,19 +250,85 @@ final class StudyStore: ObservableObject {
         completedTaskIDs = Set(payload.completedTaskIDs)
     }
 
-    private func save() {
+    private func saveProgress() {
         let payload = PersistedProgress(completedTaskIDs: Array(completedTaskIDs).sorted())
         guard let data = try? JSONEncoder().encode(payload) else { return }
         try? data.write(to: saveURL, options: .atomic)
     }
 
+    private func withScopedAccess<T>(to url: URL, operation: () throws -> T) throws -> T {
+        let didAccess = url.startAccessingSecurityScopedResource()
+        defer {
+            if didAccess {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        return try operation()
+    }
+
+    private func makeBookmark(for url: URL) throws -> Data {
+#if os(macOS)
+        return try url.bookmarkData(
+            options: [.withSecurityScope],
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil
+        )
+#else
+        return try url.bookmarkData(
+            options: [],
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil
+        )
+#endif
+    }
+
+    private func resolveBookmark(_ data: Data, isStale: inout Bool) throws -> URL {
+#if os(macOS)
+        return try URL(
+            resolvingBookmarkData: data,
+            options: [.withSecurityScope],
+            relativeTo: nil,
+            bookmarkDataIsStale: &isStale
+        )
+#else
+        return try URL(
+            resolvingBookmarkData: data,
+            options: [],
+            relativeTo: nil,
+            bookmarkDataIsStale: &isStale
+        )
+#endif
+    }
+
+    private static func loadAppearance(from defaults: UserDefaults) -> AppearanceMode {
+        guard
+            let rawValue = defaults.string(forKey: DefaultsKey.appearance),
+            let appearance = AppearanceMode(rawValue: rawValue)
+        else {
+            return .automatic
+        }
+
+        return appearance
+    }
+
     private static func makeSaveURL() -> URL {
         let fileManager = FileManager.default
         let baseURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? URL(filePath: NSTemporaryDirectory())
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let folderURL = baseURL.appendingPathComponent("AppleStudyChecklist", isDirectory: true)
-        try? fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try? fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
         return folderURL.appendingPathComponent("progress.json")
+    }
+
+    private static func makeEditableVaultURL() -> URL {
+        let fileManager = FileManager.default
+        let baseURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        let folderURL = baseURL
+            .appendingPathComponent("AppleStudyChecklist", isDirectory: true)
+            .appendingPathComponent("Vault", isDirectory: true)
+        try? fileManager.createDirectory(at: folderURL.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
+        return folderURL
     }
 }
 

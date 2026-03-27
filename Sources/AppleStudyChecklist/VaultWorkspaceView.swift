@@ -1,3 +1,4 @@
+#if os(macOS)
 import SwiftUI
 
 struct VaultWorkspaceView: View {
@@ -127,3 +128,4 @@ struct VaultWorkspaceView: View {
         }
     }
 }
+#endif
