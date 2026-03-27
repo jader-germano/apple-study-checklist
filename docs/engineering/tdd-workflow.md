@@ -24,6 +24,14 @@ New implementation work in this repository must be driven by tests first.
 - SwiftUI integration:
   - keep view logic thin and move behavior into testable store or service types
 
+## Test structure
+
+- Group tests by layer and responsibility, not in one catch-all file
+- Keep shared fixtures in `Tests/.../Fixtures`
+- Keep pure parsing and mapping in `Tests/.../Unit`
+- Keep persisted workflows and filesystem-backed flows in `Tests/.../Integration`
+- Use file names that match the subject under test so failures are easy to trace
+
 ## Done criteria
 
 - Failing test existed before the implementation

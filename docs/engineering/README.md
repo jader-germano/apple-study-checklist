@@ -14,6 +14,7 @@ Every new feature should pass through these artifacts before code changes:
 
 - `tdd-workflow.md`: execution model for red-green-refactor in this repo
 - `project-patterns.md`: architecture and project patterns to keep stable
+- `test-architecture.md`: how tests are split for traceability and modularity
 
 ## Current scope
 
