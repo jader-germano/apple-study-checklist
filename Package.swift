@@ -9,13 +9,13 @@ let package = Package(
         .iOS(.v17)
     ],
     products: [
-        .executable(
+        .library(
             name: "AppleStudyChecklist",
             targets: ["AppleStudyChecklist"]
         )
     ],
     targets: [
-        .executableTarget(
+        .target(
             name: "AppleStudyChecklist",
             path: "Sources/AppleStudyChecklist",
             resources: [

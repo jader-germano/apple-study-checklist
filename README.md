@@ -18,8 +18,11 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
 
 1. Abra o diretório do pacote no Xcode:
    - `/Users/philipegermano/Library/Mobile Documents/com~apple~CloudDocs/code/apple-study-checklist`
+2. Gere o projeto iOS host quando precisar instalar no device:
+   - `xcodegen generate`
+   - abra `AppleStudyChecklistHost.xcodeproj`
 2. Ou rode pelo terminal para macOS:
-   - `swift run`
+   - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test`
 
 ## Build e teste
 
@@ -27,10 +30,15 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
   - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift build`
 - Testes:
   - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test`
-- Build Xcode macOS:
-  - `xcodebuild -scheme AppleStudyChecklist -destination 'generic/platform=macOS' CODE_SIGNING_ALLOWED=NO build`
-- Build Xcode iOS:
-  - `xcodebuild -scheme AppleStudyChecklist -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build`
+- Gerar projeto iOS:
+  - `xcodegen generate`
+- Build Xcode iOS host:
+  - `xcodebuild -project AppleStudyChecklistHost.xcodeproj -scheme AppleStudyChecklistiOS -destination 'generic/platform=iOS' build`
+- Install no iPhone:
+  - abra `AppleStudyChecklistHost.xcodeproj`
+  - selecione o target `AppleStudyChecklistiOS`
+  - escolha sua `Team` em `Signing & Capabilities`
+  - depois rode o scheme `AppleStudyChecklistiOS` no aparelho
 
 ## Documentacao de trabalho
 
