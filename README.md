@@ -1,6 +1,6 @@
 # Apple Study Checklist
 
-App macOS em SwiftUI para acompanhar um cronograma de estudo focado em sistema operacional e desenvolvimento para o ecossistema Apple.
+App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre sistema operacional e desenvolvimento no ecossistema Apple.
 
 ## O que o app faz
 
@@ -8,14 +8,29 @@ App macOS em SwiftUI para acompanhar um cronograma de estudo focado em sistema o
 - mostra a data real de cada bloco de estudo;
 - oferece checklist persistente por tarefa;
 - resume progresso por semana;
-- expõe links de referência e glossário de cada tema.
+- expõe links de referência e glossário de cada tema;
+- carrega textos, labels e composição do plano a partir de um vault Markdown;
+- permite usar o vault integrado, criar uma cópia local editável ou conectar uma pasta externa;
+- inclui área de visualização e edição dos arquivos Markdown dentro do app;
+- suporta modo `automatic`, `light` e `dark`.
 
 ## Como abrir
 
 1. Abra o diretório do pacote no Xcode:
    - `/Users/philipegermano/Library/Mobile Documents/com~apple~CloudDocs/code/apple-study-checklist`
-2. Ou rode pelo terminal:
+2. Ou rode pelo terminal para macOS:
    - `swift run`
+
+## Build e teste
+
+- Build SwiftPM:
+  - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift build`
+- Testes:
+  - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test`
+- Build Xcode macOS:
+  - `xcodebuild -scheme AppleStudyChecklist -destination 'generic/platform=macOS' CODE_SIGNING_ALLOWED=NO build`
+- Build Xcode iOS:
+  - `xcodebuild -scheme AppleStudyChecklist -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build`
 
 ## Documentacao de trabalho
 
@@ -34,6 +49,12 @@ Novas features devem nascer a partir dessa base: historia, criterio, teste falha
 O progresso do checklist é salvo em:
 
 - `~/Library/Application Support/AppleStudyChecklist/progress.json`
+
+O vault local editável, quando criado pelo app, fica em:
+
+- `~/Library/Application Support/AppleStudyChecklist/Vault`
+
+O bundle padrão do app inclui um vault Markdown em `Sources/AppleStudyChecklist/Resources/Vault`.
 
 ## Cronograma inicial
 
