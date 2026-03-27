@@ -1,0 +1,6 @@
+// Set your Apple Developer Team ID here before installing on a physical device.
+// Example:
+// DEVELOPMENT_TEAM = ABC123DE45
+
+DEVELOPMENT_TEAM =
+CODE_SIGN_STYLE = Automatic
