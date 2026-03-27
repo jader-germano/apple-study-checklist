@@ -1,6 +1,6 @@
-# Vault Workspace API
+# API do Workspace do Vault
 
-## Overview
+## Visão geral
 
 The vault workspace is the feature boundary between markdown content and the app UI.
 
@@ -18,7 +18,7 @@ The workspace can be loaded from:
 - a local editable copy
 - an imported external folder
 
-## Related repository docs
+## Documentação relacionada do repositório
 
 - `docs/api/vault-workspace-api.md`
 - `docs/architecture/system-overview.md`

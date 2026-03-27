@@ -1,6 +1,6 @@
-# System UI and UX Spec
+# Especificação de UI e UX do Sistema
 
-## Navigation
+## Navegação
 
 - Primary shell:
   - tab-based separation between `Checklist` and `Vault`
@@ -11,13 +11,13 @@
   - document list on the leading side
   - viewer or editor in the detail area
 
-## Visual system
+## Sistema visual
 
 - Use Apple system typography as the baseline
 - Keep hierarchy strong through spacing and sectioning before adding decoration
 - Preserve a technical tool aesthetic instead of a marketing UI aesthetic
 
-## States
+## Estados
 
 ### Checklist
 
@@ -34,7 +34,7 @@
 - save success
 - save failure
 
-## Theme model
+## Modelo de tema
 
 - `automatic`
 - `light`
@@ -42,7 +42,7 @@
 
 The theme selection should live in app state and affect both checklist and vault surfaces.
 
-## Platform adaptation rules
+## Regras de adaptação por plataforma
 
 ### macOS
 
@@ -60,7 +60,7 @@ The theme selection should live in app state and affect both checklist and vault
 - do not ship a spatial experience just to mirror the desktop layout
 - only add a dedicated visionOS surface when the interaction model adds value
 
-## Design validation checklist
+## Checklist de validação de design
 
 - Can the user tell which study context is active?
 - Can the user tell whether the current workspace is editable?

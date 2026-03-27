@@ -1,39 +1,39 @@
-# External Standards
+# Padrões Externos
 
-- Category: `reference`
-- Scope: `repository`
+- Categoria: `reference`
+- Escopo: `repository`
 
-## Documentation hierarchy
+## Hierarquia da documentação
 
-This repo follows a category-first hierarchy inspired by Diataxis:
+Este repositório segue uma hierarquia orientada por categoria inspirada em Diataxis:
 
-- keep tutorials, how-to material, reference, and explanation separate when the set grows
-- use landing pages for each section
-- split long lists into smaller grouped sections
+- manter tutoriais, guias práticos, referência e explicação separados quando o conjunto crescer
+- usar landing pages para cada seção
+- dividir listas longas em grupos menores
 
-For this repository, the adapted categories are `product`, `design`, `engineering`, `architecture`, `api`, and `reference`.
+Para este repositório, as categorias adaptadas são `product`, `design`, `engineering`, `architecture`, `api` e `reference`.
 
 ## API docs
 
-For Swift packages and Apple-platform code, the preferred API-doc path is DocC:
+Para packages Swift e código de plataformas Apple, o caminho preferido de API docs é DocC:
 
-- keep an overview page
-- add focused articles for feature-level contracts
-- connect docs to symbols and types as the surface becomes more explicit
+- manter uma página de visão geral
+- adicionar artigos focados para contratos por feature
+- conectar a documentação a símbolos e tipos conforme a superfície ficar mais explícita
 
-For larger multi-system docs portals later, these npm-distributed options were identified through MCP fetches:
+Para portais maiores de documentação multi-sistema no futuro, estas opções distribuídas em npm foram identificadas via MCP:
 
 - `docusaurus-plugin-openapi-docs`
 - `redocusaurus`
 
-Those are future portal options, not current repository dependencies.
+Essas são opções futuras de portal, não dependências atuais do repositório.
 
-## Traceability rule
+## Regra de rastreabilidade
 
-A large documentation tree stays navigable only if each important document can answer:
+Uma árvore grande de documentação só continua navegável se cada documento importante conseguir responder:
 
-1. what category it belongs to
-2. what scope it covers
-3. what code it describes
-4. what tests verify it
-5. what API docs mirror it
+1. a que categoria ele pertence
+2. qual escopo ele cobre
+3. que código ele descreve
+4. que testes o verificam
+5. que API docs o espelham

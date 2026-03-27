@@ -1,6 +1,6 @@
-# Documentation Hierarchy
+# Hierarquia da Documentação
 
-## Overview
+## Visão geral
 
 The repository organizes documents by category and scope so larger systems can grow without losing traceability.
 
@@ -19,6 +19,6 @@ Each important document should point back to:
 - the tests that verify it
 - the DocC article or API-facing page that mirrors the contract
 
-## See Also
+## Veja também
 
-- <doc:VaultWorkspaceAPI>
+- <doc:APIDoWorkspaceDoVault>

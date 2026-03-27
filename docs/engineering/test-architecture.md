@@ -1,6 +1,6 @@
-# Test Architecture
+# Arquitetura de Testes
 
-## Decision
+## Decisão
 
 Tests in this repository should be organized by layer and responsibility, not unified in a single file.
 
@@ -16,7 +16,7 @@ It also matches Apple's test organization model:
 - Swift Testing groups related behaviors in suites
 - both approaches favor small, related groups over one large catch-all file
 
-## Repository layout
+## Estrutura no repositório
 
 ```text
 Tests/AppleStudyChecklistTests/
@@ -29,21 +29,21 @@ Tests/AppleStudyChecklistTests/
     └── VaultWorkspaceFlowTests.swift
 ```
 
-## Layer rules
+## Regras por camada
 
-### Unit
+### Unitário
 
 - Cover pure parsing, mapping, and deterministic transformations.
 - Avoid filesystem state unless the file itself is the subject of the test.
 - Prefer one focused behavior per test method.
 
-### Integration
+### Integração
 
 - Cover interactions between store, defaults, progress persistence, and vault fixtures.
 - Use temporary directories and isolated `UserDefaults` suites.
 - Name tests after the workflow or state transition they prove.
 
-## Traceability
+## Rastreabilidade
 
 Each new feature slice should add or update tests in the closest layer that owns the behavior:
 

@@ -1,4 +1,4 @@
-# Figma Prototype Brief
+# Brief de Protótipo Figma
 
 ## Status
 
@@ -6,7 +6,7 @@ This repository is ready for a Figma-driven implementation workflow, but the Fig
 
 That means this document is the handoff brief for the next design session, not the output of a live Figma extraction.
 
-## Required Figma workflow
+## Fluxo Figma necessário
 
 The intended workflow follows the local `figma-implement-design` skill:
 
@@ -16,29 +16,29 @@ The intended workflow follows the local `figma-implement-design` skill:
 4. map the result into project conventions
 5. validate code against the design source
 
-## Screens to prototype
+## Telas para prototipar
 
-### 1. Checklist workspace
+### 1. Workspace de checklist
 
 - Week list
 - Week summary
 - Daily checklist cards
 - References, glossary, and study guide blocks
 
-### 2. Vault workspace
+### 2. Workspace do vault
 
 - Vault source controls
 - Markdown file list
 - Editor and preview surface
 - Save and error feedback states
 
-### 3. Cross-platform adaptations
+### 3. Adaptações cross-platform
 
 - iPad regular-width layout
 - iPhone compact navigation flow
 - visionOS concept only after the shared app flows are stable
 
-## Components to design
+## Componentes para desenhar
 
 - Navigation shell
 - Week row
@@ -49,7 +49,7 @@ The intended workflow follows the local `figma-implement-design` skill:
 - Save feedback banner
 - Appearance selector
 
-## Design constraints
+## Restrições de design
 
 - Respect the current SwiftUI-first architecture
 - Reuse Apple system patterns where possible

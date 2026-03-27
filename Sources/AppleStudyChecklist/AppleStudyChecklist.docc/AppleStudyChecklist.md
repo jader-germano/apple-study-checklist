@@ -2,7 +2,7 @@
 
 `AppleStudyChecklist` is a local-first SwiftUI study workspace for macOS and iOS.
 
-## Overview
+## Visão geral
 
 The app combines:
 
@@ -10,9 +10,9 @@ The app combines:
 - markdown-backed content and labels
 - a vault workspace that can be bundled, local, or external
 
-## Topics
+## Tópicos
 
-### Articles
+### Artigos
 
-- <doc:DocumentationHierarchy>
-- <doc:VaultWorkspaceAPI>
+- <doc:HierarquiaDaDocumentacao>
+- <doc:APIDoWorkspaceDoVault>

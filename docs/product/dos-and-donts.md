@@ -1,6 +1,6 @@
-# Product Do's and Don'ts
+# Faça e Não Faça do Produto
 
-## Do
+## Faça
 
 - Keep the product local-first
 - Prefer explicit workflows over hidden automation
@@ -8,7 +8,7 @@
 - Keep markdown edits previewable before save
 - Preserve the feeling of one product across platforms while adapting the interaction model
 
-## Don't
+## Não faça
 
 - Turn the app into a generic note editor without study-oriented workflows
 - Hide future versioning behind automatic commits
@@ -16,14 +16,14 @@
 - Depend on MCP availability for core reading and editing use cases
 - Create separate product definitions for macOS and iOS when the domain is the same
 
-## UI Do
+## UI: Faça
 
 - Keep primary navigation shallow
 - Make the selected study context obvious
 - Surface save state near the editor
 - Favor readable typography and stable spacing over density
 
-## UI Don't
+## UI: Não faça
 
 - Overload the checklist screen with editor-only controls
 - Copy desktop split panes directly into compact iPhone layouts

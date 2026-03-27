@@ -1,4 +1,4 @@
-# Documentation Map
+# Mapa da Documentação
 
 This repository organizes documentation by `category` and `scope`.
 
@@ -8,7 +8,7 @@ The goal is simple:
 - large doc sets can grow without collapsing into one flat folder
 - each important workflow can point to related code, tests, and API docs
 
-## Categories
+## Categorias
 
 - `product/`: user goals, constraints, story maps, product rules
 - `design/`: interaction, UI, Figma, visual behavior
@@ -17,14 +17,14 @@ The goal is simple:
 - `api/`: module-facing behavior, data contracts, integration surfaces
 - `reference/`: external standards, tooling patterns, future portal options
 
-## Scopes
+## Escopos
 
 - `repository`: rules that apply to the whole repo
 - `system`: cross-feature architecture and workflow
 - `feature`: a product slice such as the vault workspace
 - `component`: a single type, module, or UI area
 
-## Traceability rule
+## Regra de rastreabilidade
 
 When a document describes shipped behavior, it should point to:
 
@@ -32,7 +32,7 @@ When a document describes shipped behavior, it should point to:
 2. the related tests
 3. the related API docs or DocC article when applicable
 
-## Current hierarchy
+## Hierarquia atual
 
 ```text
 docs/
@@ -61,7 +61,7 @@ docs/
     └── external-standards.md
 ```
 
-## Update workflow
+## Fluxo de atualização
 
 For a new system or feature:
 
