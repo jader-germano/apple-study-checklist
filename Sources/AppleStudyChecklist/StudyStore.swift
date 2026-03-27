@@ -8,6 +8,7 @@ final class StudyStore: ObservableObject {
     @Published private(set) var vaultFiles: [VaultFileEntry] = []
     @Published private(set) var sourceDescription = "Vault integrado"
     @Published private(set) var isVaultEditable = false
+    @Published private(set) var vaultState: VaultWorkspaceState = .ready
     @Published private(set) var selectedFile: VaultFileEntry?
     @Published var selectedFileContent = ""
     @Published var appearance: AppearanceMode
@@ -131,6 +132,8 @@ final class StudyStore: ObservableObject {
 
     func createEditableVaultFromBundle() {
         guard let bundledURL = bundledVaultURL else {
+            vaultState = .setupRequired
+            sourceDescription = "Nenhum vault configurado"
             lastErrorMessage = "Não foi possível localizar o vault integrado."
             return
         }
@@ -196,6 +199,7 @@ final class StudyStore: ObservableObject {
             vaultFiles = payload.files
             isVaultEditable = source.isEditable
             sourceDescription = source.description
+            vaultState = payload.workspace.program.weeks.isEmpty ? .empty : .ready
             openSelectedFile(relativePath: relativePath)
         } catch {
             program = StudyCatalog.program
@@ -204,7 +208,8 @@ final class StudyStore: ObservableObject {
             selectedFile = nil
             selectedFileContent = ""
             isVaultEditable = false
-            sourceDescription = "Fallback embutido"
+            vaultState = .setupRequired
+            sourceDescription = "Nenhum vault configurado"
             lastErrorMessage = error.localizedDescription
         }
     }

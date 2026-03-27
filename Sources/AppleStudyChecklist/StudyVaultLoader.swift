@@ -76,6 +76,10 @@ enum StudyVaultLoader {
             readOnlyNotice: metadata["label_read_only_notice"] ?? StudyLabels.default.readOnlyNotice,
             noFileSelectedTitle: metadata["label_no_file_selected_title"] ?? StudyLabels.default.noFileSelectedTitle,
             noFileSelectedDescription: metadata["label_no_file_selected_description"] ?? StudyLabels.default.noFileSelectedDescription,
+            vaultSetupTitle: metadata["label_vault_setup_title"] ?? StudyLabels.default.vaultSetupTitle,
+            vaultSetupDescription: metadata["label_vault_setup_description"] ?? StudyLabels.default.vaultSetupDescription,
+            vaultEmptyTitle: metadata["label_vault_empty_title"] ?? StudyLabels.default.vaultEmptyTitle,
+            vaultEmptyDescription: metadata["label_vault_empty_description"] ?? StudyLabels.default.vaultEmptyDescription,
             previewModeTitle: metadata["label_preview"] ?? StudyLabels.default.previewModeTitle,
             editModeTitle: metadata["label_edit"] ?? StudyLabels.default.editModeTitle,
             outputLabel: metadata["label_output"] ?? StudyLabels.default.outputLabel

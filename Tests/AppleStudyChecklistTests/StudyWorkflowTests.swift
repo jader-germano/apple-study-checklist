@@ -1,28 +1,24 @@
 import Foundation
-import Testing
+import XCTest
 @testable import AppleStudyChecklist
 
-@Suite("Study vault loader")
-struct StudyVaultLoaderTests {
-    @Test("loads labels, weeks, and markdown files from a local vault")
-    func loadsWorkspaceFromMarkdownVault() throws {
+final class StudyVaultLoaderTests: XCTestCase {
+    func testLoadsWorkspaceFromMarkdownVault() throws {
         let fixture = try VaultFixture()
 
         let payload = try StudyVaultLoader.load(from: fixture.rootURL)
 
-        #expect(payload.workspace.program.title == "Custom Track")
-        #expect(payload.workspace.program.weeks.count == 2)
-        #expect(payload.workspace.program.weeks.first?.studyText.contains("Week 1 body") == true)
-        #expect(payload.workspace.labels.planTabTitle == "Roadmap")
-        #expect(payload.files.count == 3)
+        XCTAssertEqual(payload.workspace.program.title, "Custom Track")
+        XCTAssertEqual(payload.workspace.program.weeks.count, 2)
+        XCTAssertTrue(payload.workspace.program.weeks.first?.studyText.contains("Week 1 body") == true)
+        XCTAssertEqual(payload.workspace.labels.planTabTitle, "Roadmap")
+        XCTAssertEqual(payload.files.count, 3)
     }
 }
 
-@Suite("Study store")
-struct StudyStoreTests {
-    @MainActor
-    @Test("completed tasks persist across store reloads")
-    func completedTasksPersistAcrossReloads() throws {
+@MainActor
+final class StudyStoreTests: XCTestCase {
+    func testCompletedTasksPersistAcrossReloads() throws {
         let fixture = try ProgressFixture()
         let taskID = StudyCatalog.program.weeks[0].days[0].tasks[0].id
 
@@ -41,12 +37,10 @@ struct StudyStoreTests {
             loadWorkspaceOnInit: false
         )
 
-        #expect(reloadedStore.isCompleted(taskID))
+        XCTAssertTrue(reloadedStore.isCompleted(taskID))
     }
 
-    @MainActor
-    @Test("reset clears only the selected week")
-    func resetClearsOnlySelectedWeek() throws {
+    func testResetClearsOnlySelectedWeek() throws {
         let fixture = try ProgressFixture()
         let firstWeek = StudyCatalog.program.weeks[0]
         let secondWeek = StudyCatalog.program.weeks[1]
@@ -64,13 +58,11 @@ struct StudyStoreTests {
 
         store.reset(firstWeek)
 
-        #expect(store.isCompleted(firstWeekTaskID) == false)
-        #expect(store.isCompleted(secondWeekTaskID))
+        XCTAssertFalse(store.isCompleted(firstWeekTaskID))
+        XCTAssertTrue(store.isCompleted(secondWeekTaskID))
     }
 
-    @MainActor
-    @Test("appearance preference is restored from defaults")
-    func restoresAppearancePreference() throws {
+    func testRestoresAppearancePreference() throws {
         let fixture = try ProgressFixture()
         fixture.defaults.set(AppearanceMode.dark.rawValue, forKey: "study-appearance")
 
@@ -81,7 +73,40 @@ struct StudyStoreTests {
             loadWorkspaceOnInit: false
         )
 
-        #expect(store.appearance == .dark)
+        XCTAssertEqual(store.appearance, .dark)
+    }
+
+    func testMissingBundledVaultRequiresSetup() throws {
+        let fixture = try ProgressFixture()
+        let missingURL = fixture.rootURL.appendingPathComponent("missing-vault", isDirectory: true)
+
+        let store = StudyStore(
+            saveURL: fixture.saveURL,
+            defaults: fixture.defaults,
+            bundledVaultURL: missingURL,
+            loadWorkspaceOnInit: true
+        )
+
+        XCTAssertEqual(store.vaultState, .setupRequired)
+        XCTAssertTrue(store.vaultFiles.isEmpty)
+        XCTAssertFalse(store.isVaultEditable)
+        XCTAssertEqual(store.sourceDescription, "Nenhum vault configurado")
+    }
+
+    func testBundledVaultWithoutWeeksSurfacesEmptyState() throws {
+        let fixture = try ProgressFixture()
+        let vault = try EmptyVaultFixture()
+
+        let store = StudyStore(
+            saveURL: fixture.saveURL,
+            defaults: fixture.defaults,
+            bundledVaultURL: vault.rootURL,
+            loadWorkspaceOnInit: true
+        )
+
+        XCTAssertEqual(store.vaultState, .empty)
+        XCTAssertTrue(store.program.weeks.isEmpty)
+        XCTAssertEqual(store.vaultFiles.count, 1)
     }
 }
 
@@ -146,6 +171,37 @@ references: Foundation|https://developer.apple.com/documentation/foundation
 Week 2 body
 """.write(
             to: rootURL.appendingPathComponent("Weeks", isDirectory: true).appendingPathComponent("week-02.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+    }
+
+    deinit {
+        try? FileManager.default.removeItem(at: rootURL)
+    }
+}
+
+private final class EmptyVaultFixture {
+    let rootURL: URL
+
+    init() throws {
+        rootURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(
+            at: rootURL.appendingPathComponent("Config", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+
+        try """
+---
+title: Empty Track
+start_date: 2026-04-01
+schedule_label: Bloco sugerido: 07:00-08:00
+---
+Config body
+""".write(
+            to: rootURL.appendingPathComponent("Config", isDirectory: true).appendingPathComponent("app-config.md"),
             atomically: true,
             encoding: .utf8
         )

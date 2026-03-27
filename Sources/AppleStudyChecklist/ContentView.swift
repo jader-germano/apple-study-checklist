@@ -300,18 +300,26 @@ private struct VaultLibraryView: View {
 
     var body: some View {
         NavigationSplitView {
-            List(store.vaultFiles, selection: selectedFilePathBinding) { file in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(file.displayName)
-                    Text(file.relativePath)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            Group {
+                if store.vaultFiles.isEmpty {
+                    VaultWorkspaceStateView(store: store)
+                } else {
+                    List(store.vaultFiles, selection: selectedFilePathBinding) { file in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(file.displayName)
+                            Text(file.relativePath)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .tag(file.relativePath)
+                    }
                 }
-                .tag(file.relativePath)
             }
             .navigationTitle(store.labels.vaultFilesTitle)
         } detail: {
-            if let file = store.selectedFile {
+            if store.vaultState.showsSetupActions {
+                VaultWorkspaceStateView(store: store)
+            } else if let file = store.selectedFile {
                 VaultEditorDetailView(store: store, file: file)
             } else {
                 ContentUnavailableView(
@@ -436,6 +444,71 @@ private struct StudyWorkspaceToolbar: ToolbarContent {
                 Label("Workspace", systemImage: "slider.horizontal.3")
             }
         }
+    }
+}
+
+private struct VaultWorkspaceStateView: View {
+    @ObservedObject var store: StudyStore
+
+    private var copy: (title: String, description: String, symbol: String) {
+        switch store.vaultState {
+        case .ready:
+            return (
+                store.labels.noFileSelectedTitle,
+                store.labels.noFileSelectedDescription,
+                "doc.text.magnifyingglass"
+            )
+        case .empty:
+            return (
+                store.labels.vaultEmptyTitle,
+                store.labels.vaultEmptyDescription,
+                "folder.badge.questionmark"
+            )
+        case .setupRequired:
+            return (
+                store.labels.vaultSetupTitle,
+                store.labels.vaultSetupDescription,
+                "externaldrive.badge.exclamationmark"
+            )
+        }
+    }
+
+    var body: some View {
+        ContentUnavailableView {
+            Label(copy.title, systemImage: copy.symbol)
+        } description: {
+            VStack(spacing: 12) {
+                Text(copy.description)
+                Text("\(store.labels.sourceLabel): \(store.sourceDescription)")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        } actions: {
+            VaultWorkspaceActionButtons(store: store)
+        }
+    }
+}
+
+private struct VaultWorkspaceActionButtons: View {
+    @ObservedObject var store: StudyStore
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Button(store.labels.makeEditableAction) {
+                store.createEditableVaultFromBundle()
+            }
+
+            Button(store.labels.chooseFolderAction) {
+                store.chooseVaultFolder()
+            }
+
+            if store.vaultState != .setupRequired {
+                Button(store.labels.resetToBundledAction) {
+                    store.resetToBundledVault()
+                }
+            }
+        }
+        .buttonStyle(.borderedProminent)
     }
 }
 

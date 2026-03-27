@@ -72,6 +72,10 @@ struct StudyLabels: Hashable, Codable {
     let readOnlyNotice: String
     let noFileSelectedTitle: String
     let noFileSelectedDescription: String
+    let vaultSetupTitle: String
+    let vaultSetupDescription: String
+    let vaultEmptyTitle: String
+    let vaultEmptyDescription: String
     let previewModeTitle: String
     let editModeTitle: String
     let outputLabel: String
@@ -100,6 +104,10 @@ struct StudyLabels: Hashable, Codable {
         readOnlyNotice: "O vault integrado do app é somente leitura. Crie uma cópia local ou conecte uma pasta externa para editar.",
         noFileSelectedTitle: "Selecione um arquivo",
         noFileSelectedDescription: "Abra um markdown no painel lateral para visualizar ou editar seu conteúdo.",
+        vaultSetupTitle: "Nenhum vault disponivel",
+        vaultSetupDescription: "Crie uma copia local do vault padrao ou conecte uma pasta Markdown existente para habilitar leitura e edicao.",
+        vaultEmptyTitle: "Vault sem arquivos Markdown",
+        vaultEmptyDescription: "Esta fonte foi aberta, mas nao ha arquivos .md para exibir. Voce pode conectar outra pasta ou recriar um vault local.",
         previewModeTitle: "Visualizar",
         editModeTitle: "Editar",
         outputLabel: "Saída"
@@ -148,5 +156,15 @@ enum AppearanceMode: String, CaseIterable, Codable, Identifiable {
         case .dark:
             return .dark
         }
+    }
+}
+
+enum VaultWorkspaceState: String, Equatable {
+    case ready
+    case empty
+    case setupRequired
+
+    var showsSetupActions: Bool {
+        self != .ready
     }
 }
