@@ -16,6 +16,17 @@ Every new feature should pass through these artifacts before code changes:
 - `project-patterns.md`: architecture and project patterns to keep stable
 - `test-architecture.md`: how tests are split for traceability and modularity
 
+## Scope
+
+- Category: `engineering`
+- Scope: `repository`
+
+Engineering docs should connect implementation rules to:
+
+- source boundaries
+- test boundaries
+- API-doc updates when contracts change
+
 ## Current scope
 
 - Preserve the current app behavior while increasing testability

@@ -34,15 +34,32 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
 
 ## Documentacao de trabalho
 
+- `docs/README.md`
+- `docs/architecture/README.md`
+- `docs/architecture/system-overview.md`
+- `docs/api/README.md`
+- `docs/api/vault-workspace-api.md`
 - `docs/engineering/README.md`
 - `docs/engineering/tdd-workflow.md`
 - `docs/engineering/project-patterns.md`
+- `docs/engineering/test-architecture.md`
 - `docs/product/user-story-map.md`
 - `docs/product/dos-and-donts.md`
+- `docs/product/README.md`
 - `docs/design/figma-prototype-brief.md`
 - `docs/design/system-ui-ux-spec.md`
+- `docs/design/README.md`
+- `docs/reference/README.md`
+- `docs/reference/external-standards.md`
 
 Novas features devem nascer a partir dessa base: historia, criterio, teste falhando primeiro, implementacao minima e refactor.
+
+## API docs
+
+- DocC catalog:
+  - `Sources/AppleStudyChecklist/AppleStudyChecklist.docc`
+- Build local:
+  - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild docbuild -scheme AppleStudyChecklist -destination 'generic/platform=macOS'`
 
 ## Persistência
 
