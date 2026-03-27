@@ -2,13 +2,41 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var store: StudyStore
-    @State private var selectedWeekID = StudyCatalog.program.weeks.first?.id
+    @ObservedObject var vaultStore: VaultStore
+    @State private var selectedWeekID: String?
+
+    init(store: StudyStore, vaultStore: VaultStore) {
+        self.store = store
+        self.vaultStore = vaultStore
+        _selectedWeekID = State(initialValue: store.program.weeks.first?.id)
+    }
 
     private var selectedWeek: WeekPlan? {
         store.program.weeks.first { $0.id == selectedWeekID }
     }
 
     var body: some View {
+        TabView {
+            checklistWorkspace
+                .tabItem {
+                    Label("Checklist", systemImage: "checklist")
+                }
+
+            VaultWorkspaceView(vaultStore: vaultStore)
+                .tabItem {
+                    Label("Vault", systemImage: "folder")
+                }
+        }
+        .onAppear {
+            syncSelection()
+        }
+        .onChange(of: store.program.weeks.map(\.id)) { _, _ in
+            syncSelection()
+        }
+        .frame(minWidth: 1100, minHeight: 760)
+    }
+
+    private var checklistWorkspace: some View {
         NavigationSplitView {
             List(store.program.weeks, selection: $selectedWeekID) { week in
                 WeekRowView(week: week, progress: store.progress(for: week))
@@ -30,7 +58,19 @@ struct ContentView: View {
                 )
             }
         }
-        .frame(minWidth: 1100, minHeight: 760)
+    }
+
+    private func syncSelection() {
+        guard store.program.weeks.isEmpty == false else {
+            selectedWeekID = nil
+            return
+        }
+
+        if let selectedWeekID, store.program.weeks.contains(where: { $0.id == selectedWeekID }) {
+            return
+        }
+
+        self.selectedWeekID = store.program.weeks.first?.id
     }
 }
 
