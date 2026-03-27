@@ -60,4 +60,40 @@ final class StudyStorePersistenceTests: XCTestCase {
 
         XCTAssertEqual(store.appearance, .dark)
     }
+
+    func testRestoresLanguagePreference() throws {
+        let fixture = try ProgressFixture()
+        fixture.defaults.set(AppLanguage.english.rawValue, forKey: "study-language")
+
+        let store = StudyStore(
+            saveURL: fixture.saveURL,
+            defaults: fixture.defaults,
+            bundledVaultURL: nil,
+            loadWorkspaceOnInit: false
+        )
+
+        XCTAssertEqual(store.language, .english)
+        XCTAssertEqual(store.labels.languageLabel, "Language")
+        XCTAssertEqual(store.labels.planTabTitle, "Plan")
+    }
+
+    func testChangingLanguageReloadsWorkspaceLabels() throws {
+        let fixture = try ProgressFixture()
+        let vault = try VaultFixture()
+
+        let store = StudyStore(
+            saveURL: fixture.saveURL,
+            defaults: fixture.defaults,
+            bundledVaultURL: vault.rootURL,
+            loadWorkspaceOnInit: true
+        )
+
+        XCTAssertEqual(store.labels.languageLabel, "Idioma")
+
+        store.updateLanguage(.english)
+
+        XCTAssertEqual(store.language, .english)
+        XCTAssertEqual(store.labels.languageLabel, "Language")
+        XCTAssertEqual(store.sourceDescription, "Bundled vault")
+    }
 }

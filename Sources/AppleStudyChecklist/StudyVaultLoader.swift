@@ -19,13 +19,14 @@ enum StudyVaultLoader {
         let dayTitlePrefix: String
         let phaseLabels: [String]
         let taskTemplates: [(title: String, noteTemplate: String)]
+        let language: AppLanguage
     }
 
-    static func load(from vaultURL: URL) throws -> Payload {
+    static func load(from vaultURL: URL, language: AppLanguage = .portuguese) throws -> Payload {
         let configURL = vaultURL
             .appendingPathComponent("Config", isDirectory: true)
             .appendingPathComponent("app-config.md")
-        let config = try loadConfiguration(from: configURL)
+        let config = try loadConfiguration(from: configURL, language: language)
 
         let files = try enumerateMarkdownFiles(in: vaultURL)
         let weekFiles = files.filter { $0.relativePath.hasPrefix("Weeks/") }.sorted { $0.relativePath < $1.relativePath }
@@ -48,41 +49,44 @@ enum StudyVaultLoader {
         Bundle.module.resourceURL?.appendingPathComponent("Vault", isDirectory: true)
     }
 
-    private static func loadConfiguration(from url: URL) throws -> VaultConfiguration {
+    private static func loadConfiguration(from url: URL, language: AppLanguage) throws -> VaultConfiguration {
         let document = try parseMarkdown(at: url)
         let metadata = document.metadata
+        let defaults = StudyLabels.localizedDefaults(for: language)
+        let suffix = language == .english ? "_en" : ""
 
         let labels = StudyLabels(
-            planTabTitle: metadata["label_plan_tab"] ?? StudyLabels.default.planTabTitle,
-            vaultTabTitle: metadata["label_vault_tab"] ?? StudyLabels.default.vaultTabTitle,
-            planNavigationTitle: metadata["label_plan_navigation"] ?? StudyLabels.default.planNavigationTitle,
-            selectWeekTitle: metadata["label_select_week_title"] ?? StudyLabels.default.selectWeekTitle,
-            selectWeekDescription: metadata["label_select_week_description"] ?? StudyLabels.default.selectWeekDescription,
-            referencesTitle: metadata["label_references"] ?? StudyLabels.default.referencesTitle,
-            glossaryTitle: metadata["label_glossary"] ?? StudyLabels.default.glossaryTitle,
-            dailyChecklistTitle: metadata["label_daily_checklist"] ?? StudyLabels.default.dailyChecklistTitle,
-            resetWeekAction: metadata["label_reset_week"] ?? StudyLabels.default.resetWeekAction,
-            studyGuideTitle: metadata["label_study_guide"] ?? StudyLabels.default.studyGuideTitle,
-            vaultLibraryTitle: metadata["label_vault_library"] ?? StudyLabels.default.vaultLibraryTitle,
-            vaultFilesTitle: metadata["label_vault_files"] ?? StudyLabels.default.vaultFilesTitle,
-            vaultEditorTitle: metadata["label_vault_editor"] ?? StudyLabels.default.vaultEditorTitle,
-            sourceLabel: metadata["label_source"] ?? StudyLabels.default.sourceLabel,
-            makeEditableAction: metadata["label_make_editable"] ?? StudyLabels.default.makeEditableAction,
-            chooseFolderAction: metadata["label_choose_folder"] ?? StudyLabels.default.chooseFolderAction,
-            resetToBundledAction: metadata["label_reset_bundle"] ?? StudyLabels.default.resetToBundledAction,
-            reloadVaultAction: metadata["label_reload_vault"] ?? StudyLabels.default.reloadVaultAction,
-            appearanceLabel: metadata["label_appearance"] ?? StudyLabels.default.appearanceLabel,
-            saveFileAction: metadata["label_save_file"] ?? StudyLabels.default.saveFileAction,
-            readOnlyNotice: metadata["label_read_only_notice"] ?? StudyLabels.default.readOnlyNotice,
-            noFileSelectedTitle: metadata["label_no_file_selected_title"] ?? StudyLabels.default.noFileSelectedTitle,
-            noFileSelectedDescription: metadata["label_no_file_selected_description"] ?? StudyLabels.default.noFileSelectedDescription,
-            vaultSetupTitle: metadata["label_vault_setup_title"] ?? StudyLabels.default.vaultSetupTitle,
-            vaultSetupDescription: metadata["label_vault_setup_description"] ?? StudyLabels.default.vaultSetupDescription,
-            vaultEmptyTitle: metadata["label_vault_empty_title"] ?? StudyLabels.default.vaultEmptyTitle,
-            vaultEmptyDescription: metadata["label_vault_empty_description"] ?? StudyLabels.default.vaultEmptyDescription,
-            previewModeTitle: metadata["label_preview"] ?? StudyLabels.default.previewModeTitle,
-            editModeTitle: metadata["label_edit"] ?? StudyLabels.default.editModeTitle,
-            outputLabel: metadata["label_output"] ?? StudyLabels.default.outputLabel
+            planTabTitle: localizedMetadataValue(metadata, key: "label_plan_tab", suffix: suffix) ?? defaults.planTabTitle,
+            vaultTabTitle: localizedMetadataValue(metadata, key: "label_vault_tab", suffix: suffix) ?? defaults.vaultTabTitle,
+            planNavigationTitle: localizedMetadataValue(metadata, key: "label_plan_navigation", suffix: suffix) ?? defaults.planNavigationTitle,
+            selectWeekTitle: localizedMetadataValue(metadata, key: "label_select_week_title", suffix: suffix) ?? defaults.selectWeekTitle,
+            selectWeekDescription: localizedMetadataValue(metadata, key: "label_select_week_description", suffix: suffix) ?? defaults.selectWeekDescription,
+            referencesTitle: localizedMetadataValue(metadata, key: "label_references", suffix: suffix) ?? defaults.referencesTitle,
+            glossaryTitle: localizedMetadataValue(metadata, key: "label_glossary", suffix: suffix) ?? defaults.glossaryTitle,
+            dailyChecklistTitle: localizedMetadataValue(metadata, key: "label_daily_checklist", suffix: suffix) ?? defaults.dailyChecklistTitle,
+            resetWeekAction: localizedMetadataValue(metadata, key: "label_reset_week", suffix: suffix) ?? defaults.resetWeekAction,
+            studyGuideTitle: localizedMetadataValue(metadata, key: "label_study_guide", suffix: suffix) ?? defaults.studyGuideTitle,
+            vaultLibraryTitle: localizedMetadataValue(metadata, key: "label_vault_library", suffix: suffix) ?? defaults.vaultLibraryTitle,
+            vaultFilesTitle: localizedMetadataValue(metadata, key: "label_vault_files", suffix: suffix) ?? defaults.vaultFilesTitle,
+            vaultEditorTitle: localizedMetadataValue(metadata, key: "label_vault_editor", suffix: suffix) ?? defaults.vaultEditorTitle,
+            sourceLabel: localizedMetadataValue(metadata, key: "label_source", suffix: suffix) ?? defaults.sourceLabel,
+            makeEditableAction: localizedMetadataValue(metadata, key: "label_make_editable", suffix: suffix) ?? defaults.makeEditableAction,
+            chooseFolderAction: localizedMetadataValue(metadata, key: "label_choose_folder", suffix: suffix) ?? defaults.chooseFolderAction,
+            resetToBundledAction: localizedMetadataValue(metadata, key: "label_reset_bundle", suffix: suffix) ?? defaults.resetToBundledAction,
+            reloadVaultAction: localizedMetadataValue(metadata, key: "label_reload_vault", suffix: suffix) ?? defaults.reloadVaultAction,
+            appearanceLabel: localizedMetadataValue(metadata, key: "label_appearance", suffix: suffix) ?? defaults.appearanceLabel,
+            languageLabel: localizedMetadataValue(metadata, key: "label_language", suffix: suffix) ?? defaults.languageLabel,
+            saveFileAction: localizedMetadataValue(metadata, key: "label_save_file", suffix: suffix) ?? defaults.saveFileAction,
+            readOnlyNotice: localizedMetadataValue(metadata, key: "label_read_only_notice", suffix: suffix) ?? defaults.readOnlyNotice,
+            noFileSelectedTitle: localizedMetadataValue(metadata, key: "label_no_file_selected_title", suffix: suffix) ?? defaults.noFileSelectedTitle,
+            noFileSelectedDescription: localizedMetadataValue(metadata, key: "label_no_file_selected_description", suffix: suffix) ?? defaults.noFileSelectedDescription,
+            vaultSetupTitle: localizedMetadataValue(metadata, key: "label_vault_setup_title", suffix: suffix) ?? defaults.vaultSetupTitle,
+            vaultSetupDescription: localizedMetadataValue(metadata, key: "label_vault_setup_description", suffix: suffix) ?? defaults.vaultSetupDescription,
+            vaultEmptyTitle: localizedMetadataValue(metadata, key: "label_vault_empty_title", suffix: suffix) ?? defaults.vaultEmptyTitle,
+            vaultEmptyDescription: localizedMetadataValue(metadata, key: "label_vault_empty_description", suffix: suffix) ?? defaults.vaultEmptyDescription,
+            previewModeTitle: localizedMetadataValue(metadata, key: "label_preview", suffix: suffix) ?? defaults.previewModeTitle,
+            editModeTitle: localizedMetadataValue(metadata, key: "label_edit", suffix: suffix) ?? defaults.editModeTitle,
+            outputLabel: localizedMetadataValue(metadata, key: "label_output", suffix: suffix) ?? defaults.outputLabel
         )
 
         let formatter = DateFormatter()
@@ -92,37 +96,60 @@ enum StudyVaultLoader {
 
         let taskTemplates = [
             (
-                metadata["task_read_title"] ?? "Ler o bloco principal do tema",
-                metadata["task_read_note_template"] ?? "Foque em {title_lowercased} e registre os termos que ainda estão frágeis."
+                localizedMetadataValue(metadata, key: "task_read_title", suffix: suffix)
+                    ?? (language == .english ? "Read the main topic block" : "Ler o bloco principal do tema"),
+                localizedMetadataValue(metadata, key: "task_read_note_template", suffix: suffix)
+                    ?? (language == .english
+                        ? "Focus on {title_lowercased} and write down the weak terms."
+                        : "Foque em {title_lowercased} e registre os termos que ainda estão frágeis.")
             ),
             (
-                metadata["task_practice_title"] ?? "Executar uma atividade prática",
-                metadata["task_practice_note_template"] ?? "Conecte a leitura à prática usando o objetivo: {objective}"
+                localizedMetadataValue(metadata, key: "task_practice_title", suffix: suffix)
+                    ?? (language == .english ? "Run a practical activity" : "Executar uma atividade prática"),
+                localizedMetadataValue(metadata, key: "task_practice_note_template", suffix: suffix)
+                    ?? (language == .english
+                        ? "Connect the reading to practice using the objective: {objective}"
+                        : "Conecte a leitura à prática usando o objetivo: {objective}")
             ),
             (
-                metadata["task_record_title"] ?? "Registrar uma saída objetiva",
-                metadata["task_record_note_template"] ?? "Atualize suas notas com um resultado verificável: {deliverable}"
+                localizedMetadataValue(metadata, key: "task_record_title", suffix: suffix)
+                    ?? (language == .english ? "Record an objective output" : "Registrar uma saída objetiva"),
+                localizedMetadataValue(metadata, key: "task_record_note_template", suffix: suffix)
+                    ?? (language == .english
+                        ? "Update your notes with a verifiable result: {deliverable}"
+                        : "Atualize suas notas com um resultado verificável: {deliverable}")
             )
         ]
 
         return VaultConfiguration(
-            title: metadata["title"] ?? "Apple OS Developer Track",
+            title: localizedMetadataValue(metadata, key: "title", suffix: suffix) ?? "Apple OS Developer Track",
             startDate: formatter.date(from: metadata["start_date"] ?? "") ?? .now,
-            scheduleLabel: metadata["schedule_label"] ?? "Bloco diário sugerido: 08:00-09:30",
+            scheduleLabel: localizedMetadataValue(metadata, key: "schedule_label", suffix: suffix)
+                ?? (language == .english ? "Suggested block: 08:00-09:30" : "Bloco diário sugerido: 08:00-09:30"),
             labels: labels,
-            dayTitlePrefix: metadata["day_title_prefix"] ?? "Dia",
-            phaseLabels: parseList(metadata["phase_labels"] ?? ""),
-            taskTemplates: taskTemplates
+            dayTitlePrefix: localizedMetadataValue(metadata, key: "day_title_prefix", suffix: suffix)
+                ?? (language == .english ? "Day" : "Dia"),
+            phaseLabels: parseList(localizedMetadataValue(metadata, key: "phase_labels", suffix: suffix) ?? ""),
+            taskTemplates: taskTemplates,
+            language: language
         )
+    }
+
+    private static func localizedMetadataValue(_ metadata: [String: String], key: String, suffix: String) -> String? {
+        if suffix.isEmpty == false, let localizedValue = metadata["\(key)\(suffix)"] {
+            return localizedValue
+        }
+        return metadata[key]
     }
 
     private static func loadWeek(from url: URL, configuration: VaultConfiguration) throws -> WeekPlan {
         let document = try parseMarkdown(at: url)
         let metadata = document.metadata
         let weekNumber = Int(metadata["week_number"] ?? "") ?? 1
-        let title = metadata["title"] ?? "Semana \(weekNumber)"
-        let objective = metadata["objective"] ?? ""
-        let deliverable = metadata["deliverable"] ?? ""
+        let suffix = configuration.language == .english ? "_en" : ""
+        let title = localizedMetadataValue(metadata, key: "title", suffix: suffix) ?? "Semana \(weekNumber)"
+        let objective = localizedMetadataValue(metadata, key: "objective", suffix: suffix) ?? ""
+        let deliverable = localizedMetadataValue(metadata, key: "deliverable", suffix: suffix) ?? ""
         let glossary = parseList(metadata["glossary"] ?? "")
         let references = parseReferences(metadata["references"] ?? "")
 
@@ -148,7 +175,10 @@ enum StudyVaultLoader {
             deliverable: deliverable,
             references: references,
             glossary: glossary,
-            studyText: document.body.trimmingCharacters(in: .whitespacesAndNewlines),
+            studyText: (
+                localizedMetadataValue(metadata, key: "study_text", suffix: suffix)
+                ?? document.body
+            ).trimmingCharacters(in: .whitespacesAndNewlines),
             days: days
         )
     }

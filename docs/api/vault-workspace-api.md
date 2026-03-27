@@ -1,33 +1,33 @@
-# Vault Workspace API
+# API do Workspace do Vault
 
-- Category: `api`
-- Scope: `feature`
+- Categoria: `api`
+- Escopo: `feature`
 
-## Purpose
+## Propósito
 
-This document describes the current developer-facing contract of the vault workspace.
+Este documento descreve o contrato atual, voltado a quem desenvolve, do workspace do vault.
 
-It is not a network API. It is the internal app-facing contract between markdown content, workspace loading, and the UI.
+Não é uma API de rede. É o contrato interno entre conteúdo Markdown, carregamento do workspace e UI.
 
-## Main types
+## Tipos principais
 
 ### StudyLabels
 
-Defined in `Sources/AppleStudyChecklist/Models.swift`.
+Definido em `Sources/AppleStudyChecklist/Models.swift`.
 
-Owns the user-facing labels loaded from markdown metadata or defaults.
+Controla os rótulos visíveis ao usuário carregados do metadata Markdown ou dos valores padrão.
 
 ### VaultFileEntry
 
-Defined in `Sources/AppleStudyChecklist/Models.swift`.
+Definido em `Sources/AppleStudyChecklist/Models.swift`.
 
-Represents a markdown file discovered in the current workspace.
+Representa um arquivo Markdown descoberto no workspace atual.
 
 ### VaultWorkspaceState
 
-Defined in `Sources/AppleStudyChecklist/Models.swift`.
+Definido em `Sources/AppleStudyChecklist/Models.swift`.
 
-Supported states:
+Estados suportados:
 
 - `ready`
 - `empty`
@@ -35,49 +35,62 @@ Supported states:
 
 ### StudyStore
 
-Defined in `Sources/AppleStudyChecklist/StudyStore.swift`.
+Definido em `Sources/AppleStudyChecklist/StudyStore.swift`.
 
-UI-facing responsibilities:
+Responsabilidades voltadas à UI:
 
-- load the active vault source
-- expose `vaultFiles`, `selectedFile`, `selectedFileContent`
-- expose `sourceDescription`, `isVaultEditable`, `vaultState`
-- persist progress and appearance
+- carregar a fonte ativa do vault
+- expor `vaultFiles`, `selectedFile`, `selectedFileContent`
+- expor `sourceDescription`, `isVaultEditable`, `vaultState`
+- persistir progresso, aparência e idioma
 
 ### StudyVaultLoader
 
-Defined in `Sources/AppleStudyChecklist/StudyVaultLoader.swift`.
+Definido em `Sources/AppleStudyChecklist/StudyVaultLoader.swift`.
 
-Responsibilities:
+Responsabilidades:
 
-- read `Config/app-config.md`
-- enumerate markdown files
-- map `Weeks/*.md` into `WeekPlan`
-- build `StudyWorkspace`
+- ler `Config/app-config.md`
+- enumerar arquivos Markdown
+- mapear `Weeks/*.md` para `WeekPlan`
+- aplicar fallback e override por idioma com chaves `*_en`
+- montar `StudyWorkspace`
 
-## Source modes
+### AppLanguage
 
-The current workspace can come from:
+Definido em `Sources/AppleStudyChecklist/Models.swift`.
 
-- bundled vault
-- local editable copy in Application Support
-- external folder imported through the picker
+Representa o idioma da interface e dos campos localizáveis do vault.
 
-## Traceability
+Valores atuais:
 
-Related code:
+- `pt-BR`
+- `en`
+
+## Modos de origem
+
+O workspace atual pode vir de:
+
+- vault embutido
+- cópia local editável em Application Support
+- pasta externa importada pelo seletor
+
+## Rastreabilidade
+
+Código relacionado:
 
 - `Sources/AppleStudyChecklist/Models.swift`
 - `Sources/AppleStudyChecklist/StudyStore.swift`
 - `Sources/AppleStudyChecklist/StudyVaultLoader.swift`
 - `Sources/AppleStudyChecklist/ContentView.swift`
+- `Sources/AppleStudyChecklist/Resources/Vault/Config/app-config.md`
 
-Related tests:
+Testes relacionados:
 
 - `Tests/AppleStudyChecklistTests/Unit/StudyVaultLoaderTests.swift`
 - `Tests/AppleStudyChecklistTests/Integration/StudyStorePersistenceTests.swift`
 - `Tests/AppleStudyChecklistTests/Integration/VaultWorkspaceFlowTests.swift`
 
-Related DocC:
+DocC relacionado:
 
 - `Sources/AppleStudyChecklist/AppleStudyChecklist.docc/Articles/VaultWorkspaceAPI.md`

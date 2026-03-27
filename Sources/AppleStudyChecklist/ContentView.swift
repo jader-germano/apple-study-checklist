@@ -436,7 +436,18 @@ private struct StudyWorkspaceToolbar: ToolbarContent {
                         set: { store.updateAppearance($0) }
                     )) {
                         ForEach(AppearanceMode.allCases) { mode in
-                            Text(mode.displayName).tag(mode)
+                            Text(mode.displayName(for: store.language)).tag(mode)
+                        }
+                    }
+                }
+
+                Section(store.labels.languageLabel) {
+                    Picker(store.labels.languageLabel, selection: Binding(
+                        get: { store.language },
+                        set: { store.updateLanguage($0) }
+                    )) {
+                        ForEach(AppLanguage.allCases) { language in
+                            Text(language.displayName).tag(language)
                         }
                     }
                 }

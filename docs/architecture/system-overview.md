@@ -1,26 +1,27 @@
-# System Overview
+# Visão Geral do Sistema
 
-- Category: `architecture`
-- Scope: `system`
+- Categoria: `architecture`
+- Escopo: `system`
 
-## Purpose
+## Propósito
 
-This document tracks the stable system shape of `apple-study-checklist`.
+Este documento acompanha a forma estável do sistema `apple-study-checklist`.
 
-It should be updated when ownership or flow boundaries move.
+Ele deve ser atualizado quando fronteiras de responsabilidade ou fluxos mudarem.
 
-## Runtime areas
+## Áreas de runtime
 
 ### App shell
 
-- `Sources/AppleStudyChecklist/AppleStudyChecklistApp.swift`
+- `Apps/iOS/AppleStudyChecklistiOSApp.swift`
+- `Sources/AppleStudyChecklist/AppleStudyChecklistRootView.swift`
 - `Sources/AppleStudyChecklist/ContentView.swift`
 
-Responsibilities:
+Responsabilidades:
 
-- host the main window or scene
-- expose checklist and vault workflows
-- keep top-level navigation stable across platforms
+- hospedar a janela ou cena principal
+- expor os fluxos de checklist e vault
+- manter a navegação de topo estável entre plataformas
 
 ### Study domain and persistence
 
@@ -28,11 +29,11 @@ Responsibilities:
 - `Sources/AppleStudyChecklist/StudyCatalog.swift`
 - `Sources/AppleStudyChecklist/StudyStore.swift`
 
-Responsibilities:
+Responsabilidades:
 
-- hold the study program model
-- persist task completion and appearance
-- coordinate vault state for the UI
+- manter o modelo do programa de estudo
+- persistir conclusão de tarefas, aparência e idioma
+- coordenar o estado do vault para a UI
 
 ### Vault mapping and editing
 
@@ -40,19 +41,19 @@ Responsibilities:
 - `Sources/AppleStudyChecklist/VaultStore.swift`
 - `Sources/AppleStudyChecklist/VaultWorkspaceView.swift`
 
-Responsibilities:
+Responsabilidades:
 
-- map markdown vault files into app models
-- support local or external vault access
-- keep desktop-specific versioning concerns isolated from the shared workflow
+- mapear arquivos Markdown do vault para os modelos do app
+- suportar acesso ao vault local ou externo
+- manter preocupações de versionamento específicas do desktop isoladas do fluxo compartilhado
 
-## Related tests
+## Testes relacionados
 
 - `Tests/AppleStudyChecklistTests/Unit/StudyVaultLoaderTests.swift`
 - `Tests/AppleStudyChecklistTests/Integration/StudyStorePersistenceTests.swift`
 - `Tests/AppleStudyChecklistTests/Integration/VaultWorkspaceFlowTests.swift`
 
-## Related API docs
+## API docs relacionados
 
 - `docs/api/vault-workspace-api.md`
 - `Sources/AppleStudyChecklist/AppleStudyChecklist.docc/Articles/VaultWorkspaceAPI.md`

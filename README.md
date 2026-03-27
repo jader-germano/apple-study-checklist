@@ -12,7 +12,9 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
 - carrega textos, labels e composição do plano a partir de um vault Markdown;
 - permite usar o vault integrado, criar uma cópia local editável ou conectar uma pasta externa;
 - inclui área de visualização e edição dos arquivos Markdown dentro do app;
-- suporta modo `automatic`, `light` e `dark`.
+- suporta modo `automatic`, `light` e `dark`;
+- permite alternar a interface entre `pt-BR` e `English`;
+- aceita overrides em inglês no vault com chaves `*_en`.
 
 ## Como abrir
 
