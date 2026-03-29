@@ -75,6 +75,27 @@ O workspace atual pode vir de:
 - cópia local editável em Application Support
 - pasta externa importada pelo seletor
 
+Origem planejada para a próxima camada:
+
+- vault remoto do container, via gateway autenticado e com root restrito
+
+## Superfície remota planejada
+
+Quando a fonte remota for implementada, o contrato deve continuar orientado a arquivos Markdown e não a acesso bruto ao filesystem.
+
+Operações previstas:
+
+- listar arquivos autorizados
+- ler arquivo Markdown
+- salvar arquivo Markdown
+- recarregar conteúdo remoto
+
+Restrições previstas:
+
+- sem acesso a caminhos fora do root permitido
+- sem acesso direto ao container host
+- sem dependência dessa origem para o fluxo local-first
+
 ## Rastreabilidade
 
 Código relacionado:

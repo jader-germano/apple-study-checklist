@@ -2,30 +2,51 @@
 
 ## Faça
 
-- Keep the product local-first
-- Prefer explicit workflows over hidden automation
-- Make progress state visible and reversible
-- Keep markdown edits previewable before save
-- Preserve the feeling of one product across platforms while adapting the interaction model
+- Manter o produto como `local-first`
+- Preferir fluxos explícitos em vez de automação escondida
+- Tornar o estado de progresso visível e reversível
+- Manter edições em Markdown com preview antes do save
+- Preservar a sensação de um único produto entre plataformas, adaptando apenas o
+  modelo de interação
+- Brokerar acesso a providers por backend autenticado em vez de embutir secrets
+  no app
+- Manter níveis de permissão explícitos antes de liberar revisão ou execução
+- Preferir estados explícitos de `fileSync` e `versionSync` em vez de overwrite
+  silencioso
+- Extrair o conceito de produto do `FrankMD` sem herdar o web app como
+  superfície de runtime
+- Manter contratos de domínio reaproveitáveis para Android e Windows no futuro
+- Usar mount curado ou read-only em companions quando o objetivo não exigir
+  edição completa
 
 ## Não faça
 
-- Turn the app into a generic note editor without study-oriented workflows
-- Hide future versioning behind automatic commits
-- Mix roadmap experiments with core study flows in the same surface
-- Depend on MCP availability for core reading and editing use cases
-- Create separate product definitions for macOS and iOS when the domain is the same
+- Transformar o app em editor de notas genérico sem fluxos orientados a estudo
+- Esconder versionamento futuro atrás de commits automáticos
+- Misturar experimentos de roadmap com fluxos centrais de estudo na mesma
+  superfície
+- Depender de MCP para casos básicos de leitura e edição
+- Criar definições separadas de produto para macOS e iOS quando o domínio é o
+  mesmo
+- Guardar chaves de `OpenAI`, `Anthropic` ou outros providers diretamente no app
+  do iPhone
+- Auto-merge de arquivos remotos sem estado de conflito ou visibilidade de
+  versão
+- Liberar sessões de execução sem perfil salvo de sandbox ou permissão
+- Portar a UI Rails do `FrankMD` diretamente para o app
+- Deixar Android ou Windows divergirem da mesma semântica de vault e sync
+- Tratar um wrapper local como substituto de isolamento real de dados
 
 ## UI: Faça
 
-- Keep primary navigation shallow
-- Make the selected study context obvious
-- Surface save state near the editor
-- Favor readable typography and stable spacing over density
+- Manter a navegação principal rasa
+- Deixar o contexto de estudo selecionado óbvio
+- Expor o estado de save perto do editor
+- Favorecer tipografia legível e espaçamento estável em vez de densidade
 
 ## UI: Não faça
 
-- Overload the checklist screen with editor-only controls
-- Copy desktop split panes directly into compact iPhone layouts
-- Assume visionOS should mirror the desktop layout one-to-one
-- Treat dark mode as a raw inversion instead of a design decision
+- Sobrecarregar a tela de checklist com controles que pertencem só ao editor
+- Copiar split panes de desktop diretamente para layouts compactos no iPhone
+- Assumir que visionOS deve espelhar o desktop um para um
+- Tratar dark mode como simples inversão em vez de decisão de design

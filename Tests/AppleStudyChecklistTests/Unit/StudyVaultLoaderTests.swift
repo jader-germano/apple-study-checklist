@@ -30,4 +30,47 @@ final class StudyVaultLoaderTests: XCTestCase {
         XCTAssertEqual(payload.workspace.program.weeks.first?.days.first?.title, "Day 1")
         XCTAssertEqual(payload.workspace.program.weeks.first?.days.first?.tasks.first?.title, "Explore: Read the main topic block")
     }
+
+    func testLoadsBundledVaultResourcesFromModuleBundle() throws {
+        guard let bundledURL = StudyVaultLoader.bundledVaultURL() else {
+            return XCTFail("Expected bundled vault URL to be available")
+        }
+
+        let payload = try StudyVaultLoader.load(from: bundledURL)
+
+        XCTAssertEqual(payload.workspace.program.weeks.count, 12)
+        XCTAssertEqual(payload.workspace.program.weeks.first?.title, "Darwin, filesystem e app bundles")
+        XCTAssertTrue(payload.files.contains { $0.relativePath.hasSuffix("app-config.md") })
+    }
+
+    func testBuildsPhaseSpecificDailyDetailsToAvoidRepeatedComments() throws {
+        let fixture = try VaultFixture()
+        let payload = try StudyVaultLoader.load(from: fixture.rootURL, language: .english)
+        let week = try XCTUnwrap(payload.workspace.program.weeks.first)
+        let firstDay = try XCTUnwrap(week.days.first)
+        let secondDay = try XCTUnwrap(week.days.dropFirst().first)
+
+        XCTAssertNotEqual(firstDay.focus, secondDay.focus)
+        XCTAssertNotEqual(firstDay.output, secondDay.output)
+        XCTAssertNotEqual(firstDay.tasks.map(\.note), secondDay.tasks.map(\.note))
+        XCTAssertTrue(firstDay.tasks.allSatisfy { $0.note.localizedCaseInsensitiveContains(firstDay.phase) })
+        XCTAssertTrue(secondDay.tasks.allSatisfy { $0.note.localizedCaseInsensitiveContains(secondDay.phase) })
+    }
+
+    func testBundledVaultUsesDistinctOperationalCopyAcrossDays() throws {
+        guard let bundledURL = StudyVaultLoader.bundledVaultURL() else {
+            return XCTFail("Expected bundled vault URL to be available")
+        }
+
+        let payload = try StudyVaultLoader.load(from: bundledURL)
+        let week = try XCTUnwrap(payload.workspace.program.weeks.first)
+        let firstDay = try XCTUnwrap(week.days.first)
+        let secondDay = try XCTUnwrap(week.days.dropFirst().first)
+
+        XCTAssertNotEqual(firstDay.focus, secondDay.focus)
+        XCTAssertNotEqual(firstDay.output, secondDay.output)
+        XCTAssertNotEqual(firstDay.tasks.map(\.note), secondDay.tasks.map(\.note))
+        XCTAssertTrue(firstDay.tasks.allSatisfy { $0.note.localizedCaseInsensitiveContains(firstDay.phase) })
+        XCTAssertTrue(secondDay.tasks.allSatisfy { $0.note.localizedCaseInsensitiveContains(secondDay.phase) })
+    }
 }

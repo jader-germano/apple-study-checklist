@@ -17,6 +17,7 @@ struct ContentView: View {
                     Label(store.labels.vaultTabTitle, systemImage: "folder")
                 }
         }
+        .tint(Theme.accent)
         .preferredColorScheme(store.appearance.colorScheme)
         .fileImporter(
             isPresented: $store.isImportingVault,
@@ -96,6 +97,10 @@ private struct WeekRowView: View {
                 Text("Semana \(week.weekNumber)")
                     .font(.headline)
                 Spacer()
+                if progress >= 1.0 {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Theme.progressComplete)
+                }
                 Text(progress.formatted(.percent.precision(.fractionLength(0))))
                     .foregroundStyle(.secondary)
             }
@@ -105,6 +110,7 @@ private struct WeekRowView: View {
                 .foregroundStyle(.secondary)
 
             ProgressView(value: progress)
+                .tint(Theme.progressTint(for: progress))
         }
         .padding(.vertical, 4)
     }
@@ -151,7 +157,7 @@ private struct WeekDetailView: View {
                 .foregroundStyle(.secondary)
 
             ProgressView(value: store.progress(for: week))
-                .tint(.blue)
+                .tint(Theme.progressTint(for: store.progress(for: week)))
         }
     }
 
@@ -252,9 +258,16 @@ private struct DayCardView: View {
 
                     Spacer()
 
-                    Text("\(completedCount)/\(totalCount)")
-                        .font(.headline.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .trailing, spacing: 6) {
+                        Text("\(completedCount)/\(totalCount)")
+                            .font(.headline.monospacedDigit())
+                            .foregroundStyle(.secondary)
+
+                        if totalCount > 0, completedCount == totalCount {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundStyle(Theme.progressComplete)
+                        }
+                    }
                 }
 
                 Text(day.focus)

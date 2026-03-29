@@ -1,36 +1,43 @@
 # Mapa da Documentação
 
-This repository organizes documentation by `category` and `scope`.
+Este repositório organiza a documentação por `category` e `scope`.
 
-The goal is simple:
+O objetivo é simples:
 
-- small docs stay easy to find
-- large doc sets can grow without collapsing into one flat folder
-- each important workflow can point to related code, tests, and API docs
+- documentos pequenos continuam fáceis de encontrar
+- conjuntos maiores de docs podem crescer sem colapsar em uma pasta plana
+- cada fluxo importante pode apontar para código, testes e API docs relacionados
 
 ## Categorias
 
-- `product/`: user goals, constraints, story maps, product rules
-- `design/`: interaction, UI, Figma, visual behavior
-- `engineering/`: implementation workflow, testing, architecture rules
-- `architecture/`: system-level structure and boundaries
-- `api/`: module-facing behavior, data contracts, integration surfaces
-- `reference/`: external standards, tooling patterns, future portal options
+- `product/`: objetivos, roadmap, restrições e regras de produto
+- `design/`: interação, UI, Figma e comportamento visual
+- `engineering/`: fluxo de implementação, testes e regras de engenharia
+- `architecture/`: estrutura sistêmica e limites
+- `api/`: comportamento exposto por módulos, contratos e integrações
+- `reference/`: padrões externos, tooling e opções futuras
+
+## Padrão de idioma
+
+- documentação e DocC narrativo em `pt-BR`
+- código, símbolos, nomes de arquivo e contratos técnicos em inglês
+- UI e apresentação localizadas por idioma selecionado
+- ao editar um documento já existente, normalizar a parte tocada para `pt-BR`
 
 ## Escopos
 
-- `repository`: rules that apply to the whole repo
-- `system`: cross-feature architecture and workflow
-- `feature`: a product slice such as the vault workspace
-- `component`: a single type, module, or UI area
+- `repository`: regras que valem para o repositório inteiro
+- `system`: arquitetura e fluxo transversal
+- `feature`: uma fatia de produto, como o workspace do vault
+- `component`: um tipo, módulo ou área de UI
 
 ## Regra de rastreabilidade
 
-When a document describes shipped behavior, it should point to:
+Quando um documento descreve comportamento entregue, ele deve apontar para:
 
-1. the related source files
-2. the related tests
-3. the related API docs or DocC article when applicable
+1. os arquivos-fonte relacionados
+2. os testes relacionados
+3. a documentação de API ou artigo DocC aplicável
 
 ## Hierarquia atual
 
@@ -39,13 +46,17 @@ docs/
 ├── README.md
 ├── architecture/
 │   ├── README.md
+│   ├── antigravity-session-hub.md
 │   └── system-overview.md
 ├── api/
 │   ├── README.md
+│   ├── antigravity-session-api.md
 │   └── vault-workspace-api.md
 ├── design/
 │   ├── README.md
 │   ├── figma-prototype-brief.md
+│   ├── palette-preview.html
+│   ├── themekit-integration.md
 │   └── system-ui-ux-spec.md
 ├── engineering/
 │   ├── README.md
@@ -55,17 +66,50 @@ docs/
 ├── product/
 │   ├── README.md
 │   ├── dos-and-donts.md
+│   ├── implementation-plan.md
+│   ├── roadmap.md
 │   └── user-story-map.md
 └── reference/
     ├── README.md
-    └── external-standards.md
+    ├── external-standards.md
+    ├── language-standard.md
+    └── provider-auth-and-sync.md
+```
+
+## Dependências principais entre documentos
+
+```mermaid
+flowchart TD
+    A["README.md"] --> B["docs/README.md"]
+    B --> C["docs/product/README.md"]
+    B --> D["docs/architecture/system-overview.md"]
+    B --> E["docs/api/vault-workspace-api.md"]
+    B --> F["docs/engineering/test-architecture.md"]
+    B --> G["Sources/AppleStudyChecklist/AppleStudyChecklist.docc/AppleStudyChecklist.md"]
+    B --> M["docs/architecture/antigravity-session-hub.md"]
+    B --> N["docs/api/antigravity-session-api.md"]
+    C --> H["docs/product/user-story-map.md"]
+    C --> I["docs/product/dos-and-donts.md"]
+    C --> P["docs/product/implementation-plan.md"]
+    C --> J["docs/product/roadmap.md"]
+    B --> Q["docs/design/themekit-integration.md"]
+    B --> R["docs/design/palette-preview.html"]
+    H --> J
+    D --> E
+    D --> M
+    M --> N
+    D --> F
+    E --> K["Sources/AppleStudyChecklist/AppleStudyChecklist.docc/Articles/VaultWorkspaceAPI.md"]
+    M --> O["Sources/AppleStudyChecklist/AppleStudyChecklist.docc/Articles/AntigravitySessionHub.md"]
+    B --> L["Sources/AppleStudyChecklist/AppleStudyChecklist.docc/Articles/DocumentationHierarchy.md"]
 ```
 
 ## Fluxo de atualização
 
-For a new system or feature:
+Para um novo sistema ou feature:
 
-1. update the closest product or architecture document
-2. add or update the matching tests
-3. update the API-facing document if the contract changed
-4. update the DocC catalog when the change affects developer-facing structure
+1. se a feature mudar navegação, sessão, revisão ou sync, fechar protótipo antes do código
+2. atualizar o documento de produto ou arquitetura mais próximo
+3. adicionar ou ajustar os testes correspondentes
+4. atualizar o documento de API se o contrato mudou
+5. atualizar o catálogo DocC quando a mudança afetar a estrutura para desenvolvimento

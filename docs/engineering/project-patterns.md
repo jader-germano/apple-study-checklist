@@ -2,52 +2,60 @@
 
 ## Forma do produto
 
-- One product
-- One repository
-- Shared domain and content layer
-- Platform-specific UI adaptations when needed
+- Um produto
+- Um repositório
+- Camada compartilhada de domínio e conteúdo
+- Adaptações de UI por plataforma quando necessário
 
 ## Padrões de arquitetura
 
 ### Modelo de domínio primeiro
 
-- `Models.swift` remains the stable contract for study plans, days, tasks, labels, and vault files.
-- Markdown loaders and vault services must map into the domain model instead of inventing UI-specific structures.
+- `Models.swift` continua como contrato estável para planos de estudo, dias, tarefas, labels e arquivos do vault.
+- Loaders de Markdown e serviços do vault devem mapear para o modelo de domínio em vez de inventar estruturas específicas de UI.
 
 ### Store como fronteira de comportamento
 
-- `StudyStore` owns checklist progress, workspace state, appearance, and vault integration decisions.
-- `StudyVaultLoader` owns markdown-to-model mapping.
-- Future git-specific behavior should move into a dedicated service boundary instead of growing inside views.
+- `StudyStore` é dono do progresso do checklist, do estado do workspace, da aparência e das decisões de integração do vault.
+- `StudyVaultLoader` é dono do mapeamento de Markdown para modelo.
+- Comportamentos futuros específicos de Git devem ir para uma fronteira de serviço dedicada, em vez de crescer dentro das views.
 
 ### Views enxutas
 
-- SwiftUI views should compose layout and bind to state.
-- Parsing, filesystem traversal, and persistence logic should not expand inside view bodies.
+- Views SwiftUI devem compor layout e bindar estado.
+- Parsing, navegação de filesystem e lógica de persistência não devem crescer dentro do corpo das views.
 
 ### Costuras de serviço para testabilidade
 
-- Filesystem operations should be isolated behind helper methods or service types.
-- New markdown import logic should be created behind a provider seam before UI integration.
-- Future versioning workflows should be abstracted enough to run against temporary repositories in tests.
+- Operações de filesystem devem ficar isoladas atrás de helpers ou tipos de serviço.
+- Nova lógica de importação de Markdown deve nascer atrás de uma costura de provider antes da integração com UI.
+- Fluxos futuros de versionamento devem ser abstraídos o bastante para rodar contra repositórios temporários em testes.
 
 ### Adaptadores de plataforma
 
-- macOS-specific APIs stay isolated.
-- iOS and visionOS support should be added by replacing platform adapters, not by duplicating the app.
+- APIs específicas de macOS devem ficar isoladas.
+- Suporte a iOS e visionOS deve entrar trocando adaptadores de plataforma, não duplicando o app.
+
+## Padrão de idioma
+
+- documentação do repositório em `pt-BR`
+- código-fonte, nomes de tipos, enums, testes e contratos em inglês
+- strings de UI localizadas por idioma selecionado
+- comentários de código em inglês quando forem necessários
+- nomes técnicos referenciados em docs devem permanecer como símbolos em inglês, entre crases
 
 ## Faça
 
-- Reuse the shared model layer
-- Prefer small services with one reason to change
-- Keep vault actions explicit and visible
-- Version markdown changes intentionally
-- Document every architectural deviation
+- Reutilize a camada compartilhada de modelo
+- Prefira serviços pequenos com um único motivo para mudar
+- Mantenha ações do vault explícitas e visíveis
+- Versione mudanças de Markdown de forma intencional
+- Documente todo desvio arquitetural
 
 ## Não faça
 
-- Fork the product into separate apps for iPhone, iPad, and macOS
-- Put file loading rules into `ContentView`
-- Let UI copy become the storage contract
-- Merge UI redesign and storage redesign into the same slice when they can be separated
-- Introduce visionOS-specific patterns into the shared flow without a dedicated adapter
+- Não bifurque o produto em apps separados para iPhone, iPad e macOS
+- Não coloque regras de carregamento de arquivo dentro de `ContentView`
+- Não deixe o texto de UI virar contrato de armazenamento
+- Não una redesign de UI e redesign de storage na mesma fatia quando puder separá-los
+- Não introduza padrões específicos de visionOS no fluxo compartilhado sem um adaptador dedicado

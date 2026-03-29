@@ -2,9 +2,9 @@
 
 ## Visão geral
 
-The vault workspace is the feature boundary between markdown content and the app UI.
+O workspace do vault é a fronteira de feature entre o conteúdo em Markdown e a UI do app.
 
-The current contract is centered on:
+O contrato atual se concentra em:
 
 - `StudyLabels`
 - `VaultFileEntry`
@@ -12,7 +12,7 @@ The current contract is centered on:
 - `StudyStore`
 - `StudyVaultLoader`
 
-The workspace can be loaded from:
+O workspace pode ser carregado a partir de:
 
 - the bundled vault
 - a local editable copy

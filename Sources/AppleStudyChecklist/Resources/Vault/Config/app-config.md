@@ -63,11 +63,11 @@ label_output_en: Output
 day_title_prefix: Dia
 phase_labels: Mapa do tema | Leitura guiada | Laboratório A | Arquitetura e integração | Laboratório B | Revisão técnica | Síntese e checklist
 task_read_title: Ler o bloco principal do tema
-task_read_note_template: Foque em {title_lowercased} e registre os termos que ainda estão frágeis.
+task_read_note_template: Na etapa de {phase_lowercased}, foque em {title_lowercased} e registre os termos que ainda estão frágeis.
 task_practice_title: Executar uma atividade prática
-task_practice_note_template: Conecte a leitura à prática usando o objetivo: {objective}
+task_practice_note_template: Em {phase_lowercased}, conecte a leitura à prática usando o objetivo: {objective}
 task_record_title: Registrar uma saída objetiva
-task_record_note_template: Atualize suas notas com um resultado verificável: {deliverable}
+task_record_note_template: Feche {phase_lowercased} atualizando suas notas com um resultado verificável: {deliverable}
 ---
 Este vault pode ser usado em modo local, em uma pasta sincronizada com servidor, ou a partir de uma cópia editável criada pelo app em `Application Support`.
 

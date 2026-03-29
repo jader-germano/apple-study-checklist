@@ -1,10 +1,11 @@
 # Documentação de Arquitetura
 
-- Scope: `system`
-- Category: `architecture`
+- Escopo: `system`
+- Categoria: `architecture`
 
-Use this area for cross-feature structure, system boundaries, and repository-level technical flows.
+Use esta área para estrutura transversal, fronteiras do sistema e fluxos técnicos de nível de repositório.
 
 Documentos atuais:
 
 - `system-overview.md`: runtime shape, ownership, and traceability
+- `antigravity-session-hub.md`: sessão/menu de LLM, autenticação e sync entre dispositivos

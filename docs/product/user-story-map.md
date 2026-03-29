@@ -35,6 +35,13 @@
 
 - As a user, I want light, dark, and automatic appearance modes so the app respects my environment and reading preference.
 
+### 6. Sessões de planejamento com LLM
+
+- As a user, I want to activate `Codex`, `Claude`, or `Gemini` from one menu so I can stay in one product workflow.
+- As a user, I want browser-based sign-in and persistent authenticated sessions so I do not need to reconfigure each provider every time.
+- As a user, I want planning and review sessions to share vault-backed memory across devices.
+- As a maintainer, I want agent permissions and sandbox references to be explicit before any execution-capable session starts.
+
 ## Fatias de aceitação do MVP
 
 ### MVP de conteúdo Markdown local
@@ -48,6 +55,12 @@
 - User can browse markdown files
 - User can preview and edit a file
 - User can save without leaving the app
+
+### Fundação do Antigravity session hub
+
+- User can sign in through the browser to the `Antigravity` backend
+- User can see enabled providers and active sessions
+- App keeps a local working copy and sync state without silently overwriting remote changes
 
 ### Gate de TDD
 

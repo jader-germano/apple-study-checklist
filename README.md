@@ -2,6 +2,14 @@
 
 App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre sistema operacional e desenvolvimento no ecossistema Apple.
 
+## Padrão de idioma e escrita
+
+- documentação do repositório e narrativa técnica em `pt-BR`
+- código-fonte, símbolos, nomes de tipo, testes, APIs e contratos técnicos em inglês
+- texto de interface localizado por idioma selecionado
+- `pt-BR` na UI apenas quando esse idioma estiver ativo
+- ao tocar documentação mista, normalizar a seção alterada para `pt-BR`
+
 ## O que o app faz
 
 - organiza um plano de 12 semanas;
@@ -18,8 +26,8 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
 
 ## Como abrir
 
-1. Abra o diretório do pacote no Xcode:
-   - `/Users/philipegermano/Library/Mobile Documents/com~apple~CloudDocs/code/apple-study-checklist`
+1. Abra a raiz do repositório no Xcode:
+   - `apple-study-checklist/`
 2. Gere o projeto iOS host quando precisar instalar no device:
    - `xcodegen generate`
    - abra `AppleStudyChecklistHost.xcodeproj`
@@ -55,14 +63,19 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
 - `docs/engineering/tdd-workflow.md`
 - `docs/engineering/project-patterns.md`
 - `docs/engineering/test-architecture.md`
+- `docs/product/roadmap.md`
+- `docs/product/implementation-plan.md`
 - `docs/product/user-story-map.md`
 - `docs/product/dos-and-donts.md`
 - `docs/product/README.md`
 - `docs/design/figma-prototype-brief.md`
+- `docs/design/themekit-integration.md`
+- `docs/design/palette-preview.html`
 - `docs/design/system-ui-ux-spec.md`
 - `docs/design/README.md`
 - `docs/reference/README.md`
 - `docs/reference/external-standards.md`
+- `docs/reference/language-standard.md`
 
 Novas features devem nascer a partir dessa base: historia, criterio, teste falhando primeiro, implementacao minima e refactor.
 

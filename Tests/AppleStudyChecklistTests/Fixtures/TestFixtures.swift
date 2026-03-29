@@ -31,11 +31,11 @@ label_plan_tab: Roadmap
 label_vault_tab: Notes
 label_language_en: Language
 task_read_title_en: Read the main topic block
-task_read_note_template_en: Focus on {title_lowercased} and write down the weak terms.
+task_read_note_template_en: During {phase_lowercased}, focus on {title_lowercased} and write down the weak terms.
 task_practice_title_en: Run a practical activity
-task_practice_note_template_en: Connect the reading to practice using the objective: {objective}
+task_practice_note_template_en: In {phase_lowercased}, connect the reading to practice using the objective: {objective}
 task_record_title_en: Record an objective output
-task_record_note_template_en: Update your notes with a verifiable result: {deliverable}
+task_record_note_template_en: Close {phase_lowercased} by updating your notes with a verifiable result: {deliverable}
 ---
 Config body
 """.write(

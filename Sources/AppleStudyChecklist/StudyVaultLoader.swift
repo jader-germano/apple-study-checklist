@@ -23,13 +23,10 @@ enum StudyVaultLoader {
     }
 
     static func load(from vaultURL: URL, language: AppLanguage = .portuguese) throws -> Payload {
-        let configURL = vaultURL
-            .appendingPathComponent("Config", isDirectory: true)
-            .appendingPathComponent("app-config.md")
-        let config = try loadConfiguration(from: configURL, language: language)
-
         let files = try enumerateMarkdownFiles(in: vaultURL)
-        let weekFiles = files.filter { $0.relativePath.hasPrefix("Weeks/") }.sorted { $0.relativePath < $1.relativePath }
+        let configFile = try resolveConfigurationFile(in: files)
+        let config = try loadConfiguration(from: configFile.url, language: language)
+        let weekFiles = resolveWeekFiles(in: files, configurationFile: configFile)
         let weeks = try weekFiles.map { try loadWeek(from: $0.url, configuration: config) }
 
         let program = StudyProgram(
@@ -46,7 +43,26 @@ enum StudyVaultLoader {
     }
 
     static func bundledVaultURL() -> URL? {
-        Bundle.module.resourceURL?.appendingPathComponent("Vault", isDirectory: true)
+        guard let resourceURL = Bundle.module.resourceURL else {
+            return nil
+        }
+
+        let fileManager = FileManager.default
+        let nestedVaultURL = resourceURL.appendingPathComponent("Vault", isDirectory: true)
+        let nestedConfigURL = nestedVaultURL
+            .appendingPathComponent("Config", isDirectory: true)
+            .appendingPathComponent("app-config.md")
+
+        if fileManager.fileExists(atPath: nestedConfigURL.path) {
+            return nestedVaultURL
+        }
+
+        let flattenedConfigURL = resourceURL.appendingPathComponent("app-config.md")
+        if fileManager.fileExists(atPath: flattenedConfigURL.path) {
+            return resourceURL
+        }
+
+        return nil
     }
 
     private static func loadConfiguration(from url: URL, language: AppLanguage) throws -> VaultConfiguration {
@@ -100,24 +116,24 @@ enum StudyVaultLoader {
                     ?? (language == .english ? "Read the main topic block" : "Ler o bloco principal do tema"),
                 localizedMetadataValue(metadata, key: "task_read_note_template", suffix: suffix)
                     ?? (language == .english
-                        ? "Focus on {title_lowercased} and write down the weak terms."
-                        : "Foque em {title_lowercased} e registre os termos que ainda estão frágeis.")
+                        ? "During {phase_lowercased}, focus on {title_lowercased} and write down the weak terms."
+                        : "Na etapa de {phase_lowercased}, foque em {title_lowercased} e registre os termos que ainda estão frágeis.")
             ),
             (
                 localizedMetadataValue(metadata, key: "task_practice_title", suffix: suffix)
                     ?? (language == .english ? "Run a practical activity" : "Executar uma atividade prática"),
                 localizedMetadataValue(metadata, key: "task_practice_note_template", suffix: suffix)
                     ?? (language == .english
-                        ? "Connect the reading to practice using the objective: {objective}"
-                        : "Conecte a leitura à prática usando o objetivo: {objective}")
+                        ? "In {phase_lowercased}, connect the reading to practice using the objective: {objective}"
+                        : "Em {phase_lowercased}, conecte a leitura à prática usando o objetivo: {objective}")
             ),
             (
                 localizedMetadataValue(metadata, key: "task_record_title", suffix: suffix)
                     ?? (language == .english ? "Record an objective output" : "Registrar uma saída objetiva"),
                 localizedMetadataValue(metadata, key: "task_record_note_template", suffix: suffix)
                     ?? (language == .english
-                        ? "Update your notes with a verifiable result: {deliverable}"
-                        : "Atualize suas notas com um resultado verificável: {deliverable}")
+                        ? "Close {phase_lowercased} by updating your notes with a verifiable result: {deliverable}"
+                        : "Feche {phase_lowercased} atualizando suas notas com um resultado verificável: {deliverable}")
             )
         ]
 
@@ -194,36 +210,63 @@ enum StudyVaultLoader {
         dateOffset: Int
     ) -> StudyDayPlan {
         let baseID = "week-\(weekNumber)-day-\(dayIndex + 1)"
+        let dayTitle = "\(configuration.dayTitlePrefix) \(dayIndex + 1)"
         let tasks = configuration.taskTemplates.enumerated().map { offset, template in
-            StudyTask(
+            let renderedNote = render(
+                template: template.noteTemplate,
+                title: title,
+                objective: objective,
+                deliverable: deliverable,
+                phase: phase,
+                dayTitle: dayTitle
+            )
+
+            return StudyTask(
                 id: "\(baseID)-task-\(offset + 1)",
                 title: "\(phase): \(template.title)",
-                note: render(
-                    template: template.noteTemplate,
-                    title: title,
-                    objective: objective,
-                    deliverable: deliverable
+                note: contextualizeTaskNote(
+                    renderedNote,
+                    phase: phase,
+                    language: configuration.language
                 )
             )
         }
 
         return StudyDayPlan(
             id: baseID,
-            title: "\(configuration.dayTitlePrefix) \(dayIndex + 1)",
+            title: dayTitle,
             phase: phase,
             dateOffset: dateOffset,
-            focus: objective,
-            output: deliverable,
+            focus: contextualizeFocus(
+                objective,
+                phase: phase,
+                language: configuration.language
+            ),
+            output: contextualizeOutput(
+                deliverable,
+                phase: phase,
+                language: configuration.language
+            ),
             tasks: tasks
         )
     }
 
-    private static func render(template: String, title: String, objective: String, deliverable: String) -> String {
+    private static func render(
+        template: String,
+        title: String,
+        objective: String,
+        deliverable: String,
+        phase: String,
+        dayTitle: String
+    ) -> String {
         template
             .replacingOccurrences(of: "{title}", with: title)
             .replacingOccurrences(of: "{title_lowercased}", with: title.lowercased())
             .replacingOccurrences(of: "{objective}", with: objective)
             .replacingOccurrences(of: "{deliverable}", with: deliverable)
+            .replacingOccurrences(of: "{phase}", with: phase)
+            .replacingOccurrences(of: "{phase_lowercased}", with: phase.lowercased())
+            .replacingOccurrences(of: "{day_title}", with: dayTitle)
     }
 
     private static func parseMarkdown(at url: URL) throws -> MarkdownDocument {
@@ -274,6 +317,71 @@ enum StudyVaultLoader {
             }
     }
 
+    private static func contextualizeFocus(
+        _ objective: String,
+        phase: String,
+        language: AppLanguage
+    ) -> String {
+        guard objective.isEmpty == false else {
+            return phase
+        }
+
+        if containsPhase(objective, phase: phase) {
+            return objective
+        }
+
+        switch language {
+        case .portuguese, .english:
+            return "\(phase): \(objective)"
+        }
+    }
+
+    private static func contextualizeOutput(
+        _ deliverable: String,
+        phase: String,
+        language: AppLanguage
+    ) -> String {
+        guard deliverable.isEmpty == false else {
+            return phase
+        }
+
+        if containsPhase(deliverable, phase: phase) {
+            return deliverable
+        }
+
+        switch language {
+        case .portuguese:
+            return "Saída de \(phase.lowercased()): \(deliverable)"
+        case .english:
+            return "Output for \(phase): \(deliverable)"
+        }
+    }
+
+    private static func contextualizeTaskNote(
+        _ note: String,
+        phase: String,
+        language: AppLanguage
+    ) -> String {
+        guard note.isEmpty == false else {
+            return note
+        }
+
+        if containsPhase(note, phase: phase) {
+            return note
+        }
+
+        switch language {
+        case .portuguese, .english:
+            return "\(phase): \(note)"
+        }
+    }
+
+    private static func containsPhase(_ text: String, phase: String) -> Bool {
+        let normalizedText = text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        let normalizedPhase = phase.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        return normalizedText.contains(normalizedPhase)
+    }
+
     private static func enumerateMarkdownFiles(in rootURL: URL) throws -> [VaultFileEntry] {
         guard let enumerator = FileManager.default.enumerator(
             at: rootURL,
@@ -288,6 +396,33 @@ enum StudyVaultLoader {
             let relativePath = relativePath(from: rootURL, to: url)
             return VaultFileEntry(id: relativePath, relativePath: relativePath, url: url)
         }
+    }
+
+    private static func resolveConfigurationFile(in files: [VaultFileEntry]) throws -> VaultFileEntry {
+        if let nestedConfiguration = files.first(where: { $0.relativePath == "Config/app-config.md" }) {
+            return nestedConfiguration
+        }
+
+        if let flattenedConfiguration = files.first(where: { $0.relativePath == "app-config.md" }) {
+            return flattenedConfiguration
+        }
+
+        throw CocoaError(.fileNoSuchFile)
+    }
+
+    private static func resolveWeekFiles(
+        in files: [VaultFileEntry],
+        configurationFile: VaultFileEntry
+    ) -> [VaultFileEntry] {
+        if configurationFile.relativePath == "app-config.md" {
+            return files
+                .filter { $0.relativePath != configurationFile.relativePath }
+                .sorted { $0.relativePath < $1.relativePath }
+        }
+
+        return files
+            .filter { $0.relativePath.hasPrefix("Weeks/") }
+            .sorted { $0.relativePath < $1.relativePath }
     }
 
     private static func relativePath(from baseURL: URL, to targetURL: URL) -> String {
