@@ -39,6 +39,10 @@ struct WeekPlan: Identifiable, Hashable, Codable {
     let glossary: [String]
     let studyText: String
     let days: [StudyDayPlan]
+    var tags: [String]
+    var activities: [String]
+    var sourceTree: String?
+    var relatedFiles: [String]
 }
 
 struct StudyProgram: Hashable, Codable {
