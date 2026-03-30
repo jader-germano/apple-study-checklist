@@ -34,6 +34,7 @@ Responsabilidades:
 - manter o modelo do programa de estudo
 - persistir conclusão de tarefas, aparência e idioma
 - coordenar o estado do vault para a UI
+- expor um destino editável configurável para testes sem alterar o path padrão usado em runtime
 
 ### Vault mapping and editing
 
@@ -46,6 +47,7 @@ Responsabilidades:
 - mapear arquivos Markdown do vault para os modelos do app
 - suportar acesso ao vault local ou externo
 - manter preocupações de versionamento específicas do desktop isoladas do fluxo compartilhado
+- manter o fluxo de vault editável validável em testes paralelos sem compartilhar diretórios graváveis
 
 ### Bridge remota planejada
 
