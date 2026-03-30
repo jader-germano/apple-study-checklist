@@ -1,10 +1,10 @@
-# TDD Workflow
+# Fluxo de TDD
 
-## Rule
+## Regra
 
 New implementation work in this repository must be driven by tests first.
 
-## Loop
+## Ciclo
 
 1. Define the smallest behavior change.
 2. Add or update the user story and acceptance criteria.
@@ -13,7 +13,7 @@ New implementation work in this repository must be driven by tests first.
 5. Refactor while keeping tests green.
 6. Update the relevant markdown docs in this folder and in the FrankMD vault.
 
-## Test slices
+## Fatias de teste
 
 - Domain and mapping rules:
   - test pure models and markdown parsing first
@@ -24,14 +24,22 @@ New implementation work in this repository must be driven by tests first.
 - SwiftUI integration:
   - keep view logic thin and move behavior into testable store or service types
 
-## Done criteria
+## Estrutura de testes
+
+- Group tests by layer and responsibility, not in one catch-all file
+- Keep shared fixtures in `Tests/.../Fixtures`
+- Keep pure parsing and mapping in `Tests/.../Unit`
+- Keep persisted workflows and filesystem-backed flows in `Tests/.../Integration`
+- Use file names that match the subject under test so failures are easy to trace
+
+## Critérios de pronto
 
 - Failing test existed before the implementation
 - New behavior has at least one focused automated test
 - Existing tests still pass
 - Documentation and design notes are aligned with the shipped behavior
 
-## Do
+## Faça
 
 - Keep tests small and explicit
 - Prefer one behavior per test
@@ -39,7 +47,7 @@ New implementation work in this repository must be driven by tests first.
 - Use temporary filesystem fixtures for vault scenarios
 - Treat red-green-refactor as a release gate
 
-## Don't
+## Não faça
 
 - Ship new behavior that only has manual validation
 - Hide new logic inside SwiftUI views when it can live in stores or services

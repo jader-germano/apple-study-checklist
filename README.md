@@ -2,6 +2,14 @@
 
 App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre sistema operacional e desenvolvimento no ecossistema Apple.
 
+## Padrão de idioma e escrita
+
+- documentação do repositório e narrativa técnica em `pt-BR`
+- código-fonte, símbolos, nomes de tipo, testes, APIs e contratos técnicos em inglês
+- texto de interface localizado por idioma selecionado
+- `pt-BR` na UI apenas quando esse idioma estiver ativo
+- ao tocar documentação mista, normalizar a seção alterada para `pt-BR`
+
 ## O que o app faz
 
 - organiza um plano de 12 semanas;
@@ -12,14 +20,20 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
 - carrega textos, labels e composição do plano a partir de um vault Markdown;
 - permite usar o vault integrado, criar uma cópia local editável ou conectar uma pasta externa;
 - inclui área de visualização e edição dos arquivos Markdown dentro do app;
-- suporta modo `automatic`, `light` e `dark`.
+- suporta modo `automatic`, `light` e `dark`;
+- permite alternar a interface entre `pt-BR` e `English`;
+- aceita overrides em inglês no vault com chaves `*_en`.
 
 ## Como abrir
 
-1. Abra o diretório do pacote no Xcode:
-   - `/Users/philipegermano/Library/Mobile Documents/com~apple~CloudDocs/code/apple-study-checklist`
+1. Abra a raiz do repositório no Xcode:
+   - `apple-study-checklist/`
+2. Gere o projeto iOS host quando precisar instalar no device:
+   - `xcodegen generate`
+   - abra `AppleStudyChecklistHost.xcodeproj`
+   - preencha `Configs/Signing.xcconfig` com seu `DEVELOPMENT_TEAM`
 2. Ou rode pelo terminal para macOS:
-   - `swift run`
+   - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test`
 
 ## Build e teste
 
@@ -27,22 +41,50 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
   - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift build`
 - Testes:
   - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test`
-- Build Xcode macOS:
-  - `xcodebuild -scheme AppleStudyChecklist -destination 'generic/platform=macOS' CODE_SIGNING_ALLOWED=NO build`
-- Build Xcode iOS:
-  - `xcodebuild -scheme AppleStudyChecklist -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build`
+- Gerar projeto iOS:
+  - `xcodegen generate`
+- Build Xcode iOS host:
+  - `xcodebuild -project AppleStudyChecklistHost.xcodeproj -scheme AppleStudyChecklistiOS -destination 'generic/platform=iOS' build`
+- Install no iPhone:
+  - edite `Configs/Signing.xcconfig`
+  - defina `DEVELOPMENT_TEAM = SEU_TEAM_ID`
+  - rode `xcodegen generate`
+  - abra `AppleStudyChecklistHost.xcodeproj`
+  - rode o scheme `AppleStudyChecklistiOS` no aparelho
 
 ## Documentacao de trabalho
 
+- `docs/README.md`
+- `docs/architecture/README.md`
+- `docs/architecture/system-overview.md`
+- `docs/api/README.md`
+- `docs/api/vault-workspace-api.md`
 - `docs/engineering/README.md`
 - `docs/engineering/tdd-workflow.md`
 - `docs/engineering/project-patterns.md`
+- `docs/engineering/test-architecture.md`
+- `docs/product/roadmap.md`
+- `docs/product/implementation-plan.md`
 - `docs/product/user-story-map.md`
 - `docs/product/dos-and-donts.md`
+- `docs/product/README.md`
 - `docs/design/figma-prototype-brief.md`
+- `docs/design/themekit-integration.md`
+- `docs/design/palette-preview.html`
 - `docs/design/system-ui-ux-spec.md`
+- `docs/design/README.md`
+- `docs/reference/README.md`
+- `docs/reference/external-standards.md`
+- `docs/reference/language-standard.md`
 
 Novas features devem nascer a partir dessa base: historia, criterio, teste falhando primeiro, implementacao minima e refactor.
+
+## API docs
+
+- DocC catalog:
+  - `Sources/AppleStudyChecklist/AppleStudyChecklist.docc`
+- Build local:
+  - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild docbuild -scheme AppleStudyChecklist -destination 'generic/platform=macOS'`
 
 ## Persistência
 

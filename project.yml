@@ -1,0 +1,53 @@
+name: AppleStudyChecklistHost
+options:
+  createIntermediateGroups: true
+  minimumXcodeGenVersion: 2.45.0
+
+packages:
+  AppleStudyChecklistPackage:
+    path: .
+
+targets:
+  AppleStudyChecklistiOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Apps/iOS
+    dependencies:
+      - package: AppleStudyChecklistPackage
+        product: AppleStudyChecklist
+    configFiles:
+      Debug: Configs/Signing.xcconfig
+      Release: Configs/Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_NAME: AppleStudyChecklistiOSApp
+        PRODUCT_BUNDLE_IDENTIFIER: com.jpglabs.applestudychecklist
+        CURRENT_PROJECT_VERSION: 2
+        MARKETING_VERSION: 0.0.2
+        VERSIONING_SYSTEM: apple-generic
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Apple Study Checklist
+        INFOPLIST_KEY_CFBundleShortVersionString: $(MARKETING_VERSION)
+        INFOPLIST_KEY_CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        SWIFT_VERSION: 6.0
+        TARGETED_DEVICE_FAMILY: "1,2"
+
+schemes:
+  AppleStudyChecklistiOS:
+    build:
+      targets:
+        AppleStudyChecklistiOS: all
+    run:
+      config: Debug

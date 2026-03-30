@@ -8,9 +8,11 @@ final class StudyStore: ObservableObject {
     @Published private(set) var vaultFiles: [VaultFileEntry] = []
     @Published private(set) var sourceDescription = "Vault integrado"
     @Published private(set) var isVaultEditable = false
+    @Published private(set) var vaultState: VaultWorkspaceState = .ready
     @Published private(set) var selectedFile: VaultFileEntry?
     @Published var selectedFileContent = ""
     @Published var appearance: AppearanceMode
+    @Published var language: AppLanguage
     @Published var isImportingVault = false
     @Published var lastErrorMessage: String?
     @Published private var completedTaskIDs: Set<String> = []
@@ -22,6 +24,7 @@ final class StudyStore: ObservableObject {
     private enum DefaultsKey {
         static let progress = "study-progress"
         static let appearance = "study-appearance"
+        static let language = "study-language"
         static let vaultMode = "vault-mode"
         static let externalBookmark = "vault-external-bookmark"
     }
@@ -41,7 +44,10 @@ final class StudyStore: ObservableObject {
         self.saveURL = saveURL ?? Self.makeSaveURL()
         self.defaults = defaults
         self.bundledVaultURL = bundledVaultURL
+        let loadedLanguage = Self.loadLanguage(from: defaults)
         self.appearance = Self.loadAppearance(from: defaults)
+        self.language = loadedLanguage
+        self.labels = .localizedDefaults(for: loadedLanguage)
         loadProgress()
         if loadWorkspaceOnInit {
             reloadWorkspace()
@@ -88,6 +94,12 @@ final class StudyStore: ObservableObject {
         defaults.set(mode.rawValue, forKey: DefaultsKey.appearance)
     }
 
+    func updateLanguage(_ language: AppLanguage) {
+        self.language = language
+        defaults.set(language.rawValue, forKey: DefaultsKey.language)
+        reloadWorkspace()
+    }
+
     func openSelectedFile(relativePath: String?) {
         guard let relativePath else {
             selectedFile = nil
@@ -131,7 +143,11 @@ final class StudyStore: ObservableObject {
 
     func createEditableVaultFromBundle() {
         guard let bundledURL = bundledVaultURL else {
-            lastErrorMessage = "Não foi possível localizar o vault integrado."
+            vaultState = .setupRequired
+            sourceDescription = localizedSourceDescription(.setupRequired)
+            lastErrorMessage = language == .english
+                ? "Could not locate the bundled vault."
+                : "Não foi possível localizar o vault integrado."
             return
         }
 
@@ -189,22 +205,24 @@ final class StudyStore: ObservableObject {
         do {
             let source = try resolveVaultSource()
             let payload = try withScopedAccess(to: source.url) {
-                try StudyVaultLoader.load(from: source.url)
+                try StudyVaultLoader.load(from: source.url, language: language)
             }
             program = payload.workspace.program
             labels = payload.workspace.labels
             vaultFiles = payload.files
             isVaultEditable = source.isEditable
             sourceDescription = source.description
+            vaultState = payload.workspace.program.weeks.isEmpty ? .empty : .ready
             openSelectedFile(relativePath: relativePath)
         } catch {
             program = StudyCatalog.program
-            labels = .default
+            labels = .localizedDefaults(for: language)
             vaultFiles = []
             selectedFile = nil
             selectedFileContent = ""
             isVaultEditable = false
-            sourceDescription = "Fallback embutido"
+            vaultState = .setupRequired
+            sourceDescription = localizedSourceDescription(.setupRequired)
             lastErrorMessage = error.localizedDescription
         }
     }
@@ -216,10 +234,10 @@ final class StudyStore: ObservableObject {
             guard let url = bundledVaultURL else {
                 throw CocoaError(.fileNoSuchFile)
             }
-            return (url, false, "Vault integrado ao app")
+            return (url, false, localizedSourceDescription(.bundled))
         case .appSupport:
             let url = Self.makeEditableVaultURL()
-            return (url, true, "Vault local em Application Support")
+            return (url, true, localizedSourceDescription(.appSupport))
         case .external:
             guard
                 let data = defaults.data(forKey: DefaultsKey.externalBookmark)
@@ -235,7 +253,35 @@ final class StudyStore: ObservableObject {
                 defaults.set(refreshed, forKey: DefaultsKey.externalBookmark)
             }
 
-            return (url, true, "Vault externo conectado")
+            return (url, true, localizedSourceDescription(.external))
+        }
+    }
+
+    private enum SourceDescriptionKind {
+        case bundled
+        case appSupport
+        case external
+        case setupRequired
+    }
+
+    private func localizedSourceDescription(_ kind: SourceDescriptionKind) -> String {
+        switch (language, kind) {
+        case (.english, .bundled):
+            return "Bundled vault"
+        case (.english, .appSupport):
+            return "Local vault in Application Support"
+        case (.english, .external):
+            return "Connected external vault"
+        case (.english, .setupRequired):
+            return "No vault configured"
+        case (.portuguese, .bundled):
+            return "Vault integrado ao app"
+        case (.portuguese, .appSupport):
+            return "Vault local em Application Support"
+        case (.portuguese, .external):
+            return "Vault externo conectado"
+        case (.portuguese, .setupRequired):
+            return "Nenhum vault configurado"
         }
     }
 
@@ -309,6 +355,17 @@ final class StudyStore: ObservableObject {
         }
 
         return appearance
+    }
+
+    private static func loadLanguage(from defaults: UserDefaults) -> AppLanguage {
+        guard
+            let rawValue = defaults.string(forKey: DefaultsKey.language),
+            let language = AppLanguage(rawValue: rawValue)
+        else {
+            return .portuguese
+        }
+
+        return language
     }
 
     private static func makeSaveURL() -> URL {

@@ -1,0 +1,5 @@
+// Leave DEVELOPMENT_TEAM undefined here to let Xcode manage signing from the UI.
+// If needed later for CLI/device builds, set it explicitly:
+// DEVELOPMENT_TEAM = ABC123DE45
+
+CODE_SIGN_STYLE = Automatic

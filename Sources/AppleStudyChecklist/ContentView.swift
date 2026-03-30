@@ -17,6 +17,7 @@ struct ContentView: View {
                     Label(store.labels.vaultTabTitle, systemImage: "folder")
                 }
         }
+        .tint(Theme.accent)
         .preferredColorScheme(store.appearance.colorScheme)
         .fileImporter(
             isPresented: $store.isImportingVault,
@@ -96,6 +97,10 @@ private struct WeekRowView: View {
                 Text("Semana \(week.weekNumber)")
                     .font(.headline)
                 Spacer()
+                if progress >= 1.0 {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Theme.progressComplete)
+                }
                 Text(progress.formatted(.percent.precision(.fractionLength(0))))
                     .foregroundStyle(.secondary)
             }
@@ -105,6 +110,7 @@ private struct WeekRowView: View {
                 .foregroundStyle(.secondary)
 
             ProgressView(value: progress)
+                .tint(Theme.progressTint(for: progress))
         }
         .padding(.vertical, 4)
     }
@@ -151,7 +157,7 @@ private struct WeekDetailView: View {
                 .foregroundStyle(.secondary)
 
             ProgressView(value: store.progress(for: week))
-                .tint(.blue)
+                .tint(Theme.progressTint(for: store.progress(for: week)))
         }
     }
 
@@ -252,9 +258,16 @@ private struct DayCardView: View {
 
                     Spacer()
 
-                    Text("\(completedCount)/\(totalCount)")
-                        .font(.headline.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .trailing, spacing: 6) {
+                        Text("\(completedCount)/\(totalCount)")
+                            .font(.headline.monospacedDigit())
+                            .foregroundStyle(.secondary)
+
+                        if totalCount > 0, completedCount == totalCount {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundStyle(Theme.progressComplete)
+                        }
+                    }
                 }
 
                 Text(day.focus)
@@ -300,18 +313,26 @@ private struct VaultLibraryView: View {
 
     var body: some View {
         NavigationSplitView {
-            List(store.vaultFiles, selection: selectedFilePathBinding) { file in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(file.displayName)
-                    Text(file.relativePath)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            Group {
+                if store.vaultFiles.isEmpty {
+                    VaultWorkspaceStateView(store: store)
+                } else {
+                    List(store.vaultFiles, selection: selectedFilePathBinding) { file in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(file.displayName)
+                            Text(file.relativePath)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .tag(file.relativePath)
+                    }
                 }
-                .tag(file.relativePath)
             }
             .navigationTitle(store.labels.vaultFilesTitle)
         } detail: {
-            if let file = store.selectedFile {
+            if store.vaultState.showsSetupActions {
+                VaultWorkspaceStateView(store: store)
+            } else if let file = store.selectedFile {
                 VaultEditorDetailView(store: store, file: file)
             } else {
                 ContentUnavailableView(
@@ -428,7 +449,18 @@ private struct StudyWorkspaceToolbar: ToolbarContent {
                         set: { store.updateAppearance($0) }
                     )) {
                         ForEach(AppearanceMode.allCases) { mode in
-                            Text(mode.displayName).tag(mode)
+                            Text(mode.displayName(for: store.language)).tag(mode)
+                        }
+                    }
+                }
+
+                Section(store.labels.languageLabel) {
+                    Picker(store.labels.languageLabel, selection: Binding(
+                        get: { store.language },
+                        set: { store.updateLanguage($0) }
+                    )) {
+                        ForEach(AppLanguage.allCases) { language in
+                            Text(language.displayName).tag(language)
                         }
                     }
                 }
@@ -436,6 +468,71 @@ private struct StudyWorkspaceToolbar: ToolbarContent {
                 Label("Workspace", systemImage: "slider.horizontal.3")
             }
         }
+    }
+}
+
+private struct VaultWorkspaceStateView: View {
+    @ObservedObject var store: StudyStore
+
+    private var copy: (title: String, description: String, symbol: String) {
+        switch store.vaultState {
+        case .ready:
+            return (
+                store.labels.noFileSelectedTitle,
+                store.labels.noFileSelectedDescription,
+                "doc.text.magnifyingglass"
+            )
+        case .empty:
+            return (
+                store.labels.vaultEmptyTitle,
+                store.labels.vaultEmptyDescription,
+                "folder.badge.questionmark"
+            )
+        case .setupRequired:
+            return (
+                store.labels.vaultSetupTitle,
+                store.labels.vaultSetupDescription,
+                "externaldrive.badge.exclamationmark"
+            )
+        }
+    }
+
+    var body: some View {
+        ContentUnavailableView {
+            Label(copy.title, systemImage: copy.symbol)
+        } description: {
+            VStack(spacing: 12) {
+                Text(copy.description)
+                Text("\(store.labels.sourceLabel): \(store.sourceDescription)")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        } actions: {
+            VaultWorkspaceActionButtons(store: store)
+        }
+    }
+}
+
+private struct VaultWorkspaceActionButtons: View {
+    @ObservedObject var store: StudyStore
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Button(store.labels.makeEditableAction) {
+                store.createEditableVaultFromBundle()
+            }
+
+            Button(store.labels.chooseFolderAction) {
+                store.chooseVaultFolder()
+            }
+
+            if store.vaultState != .setupRequired {
+                Button(store.labels.resetToBundledAction) {
+                    store.resetToBundledVault()
+                }
+            }
+        }
+        .buttonStyle(.borderedProminent)
     }
 }
 
