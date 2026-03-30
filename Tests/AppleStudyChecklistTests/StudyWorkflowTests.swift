@@ -16,6 +16,44 @@ struct StudyVaultLoaderTests {
         #expect(payload.workspace.labels.planTabTitle == "Roadmap")
         #expect(payload.files.count == 3)
     }
+
+    @Test("parses tags from week front matter")
+    func testVaultLoaderParsesTags() throws {
+        let fixture = try MetadataVaultFixture()
+
+        let payload = try StudyVaultLoader.load(from: fixture.rootURL)
+
+        let week = try #require(payload.workspace.program.weeks.first)
+        #expect(week.tags.contains("swiftui"))
+        #expect(week.tags.contains("state"))
+    }
+
+    @Test("parses activities from week front matter")
+    func testVaultLoaderParsesActivities() throws {
+        let fixture = try MetadataVaultFixture()
+
+        let payload = try StudyVaultLoader.load(from: fixture.rootURL)
+
+        let week = try #require(payload.workspace.program.weeks.first)
+        #expect(week.activities.contains("build-view"))
+        #expect(week.activities.contains("manage-state"))
+    }
+
+    @Test("all 12 bundled weeks have tags and activities populated")
+    func testBundledVaultHasMetadataOnAllWeeks() throws {
+        guard let bundledURL = StudyVaultLoader.bundledVaultURL() else {
+            Issue.record("Expected bundled vault URL to be available")
+            return
+        }
+
+        let payload = try StudyVaultLoader.load(from: bundledURL)
+
+        #expect(payload.workspace.program.weeks.count == 12)
+        for week in payload.workspace.program.weeks {
+            #expect(week.tags.isEmpty == false, "Week \(week.weekNumber) should have tags")
+            #expect(week.activities.isEmpty == false, "Week \(week.weekNumber) should have activities")
+        }
+    }
 }
 
 @Suite("Study store")
@@ -82,6 +120,66 @@ struct StudyStoreTests {
         )
 
         #expect(store.appearance == .dark)
+    }
+}
+
+private final class MetadataVaultFixture {
+    let rootURL: URL
+
+    init() throws {
+        rootURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(
+            at: rootURL.appendingPathComponent("Config", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createDirectory(
+            at: rootURL.appendingPathComponent("Weeks", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+
+        try """
+---
+title: Metadata Track
+start_date: 2026-04-01
+schedule_label: Bloco sugerido: 08:00-09:30
+day_title_prefix: Dia
+phase_labels: Leitura|Prática|Revisão
+label_plan_tab: Plano
+label_vault_tab: Vault
+---
+Config body
+""".write(
+            to: rootURL.appendingPathComponent("Config", isDirectory: true).appendingPathComponent("app-config.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        try """
+---
+week_number: 1
+title: SwiftUI Lifecycle
+objective: Build views and manage state
+deliverable: A working SwiftUI app
+glossary: SwiftUI|State|Binding
+references: SwiftUI|https://developer.apple.com/swiftui/
+tags: swiftui|state|bindings|lifecycle
+source_tree: docs-tree/apple-platform-foundations
+source_nodes: 07-swiftui-lifecycle-state.md
+related_files: 08-appkit-interoperabilidade.md
+activities: build-view|manage-state
+---
+Week 1 body with metadata
+""".write(
+            to: rootURL.appendingPathComponent("Weeks", isDirectory: true).appendingPathComponent("week-01.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+    }
+
+    deinit {
+        try? FileManager.default.removeItem(at: rootURL)
     }
 }
 

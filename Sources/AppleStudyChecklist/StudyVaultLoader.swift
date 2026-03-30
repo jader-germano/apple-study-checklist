@@ -22,13 +22,10 @@ enum StudyVaultLoader {
     }
 
     static func load(from vaultURL: URL) throws -> Payload {
-        let configURL = vaultURL
-            .appendingPathComponent("Config", isDirectory: true)
-            .appendingPathComponent("app-config.md")
-        let config = try loadConfiguration(from: configURL)
-
         let files = try enumerateMarkdownFiles(in: vaultURL)
-        let weekFiles = files.filter { $0.relativePath.hasPrefix("Weeks/") }.sorted { $0.relativePath < $1.relativePath }
+        let configEntry = try resolveConfigurationFile(in: files, vaultURL: vaultURL)
+        let config = try loadConfiguration(from: configEntry.url)
+        let weekFiles = resolveWeekFiles(in: files, configurationEntry: configEntry)
         let weeks = try weekFiles.map { try loadWeek(from: $0.url, configuration: config) }
 
         let program = StudyProgram(
@@ -44,8 +41,48 @@ enum StudyVaultLoader {
         )
     }
 
+    private static func resolveConfigurationFile(in files: [VaultFileEntry], vaultURL: URL) throws -> VaultFileEntry {
+        if let nested = files.first(where: { $0.relativePath == "Config/app-config.md" }) {
+            return nested
+        }
+        if let flat = files.first(where: { $0.relativePath == "app-config.md" }) {
+            return flat
+        }
+        throw CocoaError(.fileNoSuchFile)
+    }
+
+    private static func resolveWeekFiles(
+        in files: [VaultFileEntry],
+        configurationEntry: VaultFileEntry
+    ) -> [VaultFileEntry] {
+        if configurationEntry.relativePath == "app-config.md" {
+            return files
+                .filter { $0.relativePath != configurationEntry.relativePath }
+                .sorted { $0.relativePath < $1.relativePath }
+        }
+        return files
+            .filter { $0.relativePath.hasPrefix("Weeks/") }
+            .sorted { $0.relativePath < $1.relativePath }
+    }
+
     static func bundledVaultURL() -> URL? {
-        Bundle.module.resourceURL?.appendingPathComponent("Vault", isDirectory: true)
+        guard let resourceURL = Bundle.module.resourceURL else { return nil }
+        let fileManager = FileManager.default
+
+        let nestedVaultURL = resourceURL.appendingPathComponent("Vault", isDirectory: true)
+        let nestedConfigURL = nestedVaultURL
+            .appendingPathComponent("Config", isDirectory: true)
+            .appendingPathComponent("app-config.md")
+        if fileManager.fileExists(atPath: nestedConfigURL.path) {
+            return nestedVaultURL
+        }
+
+        let flatConfigURL = resourceURL.appendingPathComponent("app-config.md")
+        if fileManager.fileExists(atPath: flatConfigURL.path) {
+            return resourceURL
+        }
+
+        return nil
     }
 
     private static func loadConfiguration(from url: URL) throws -> VaultConfiguration {
@@ -121,6 +158,10 @@ enum StudyVaultLoader {
         let deliverable = metadata["deliverable"] ?? ""
         let glossary = parseList(metadata["glossary"] ?? "")
         let references = parseReferences(metadata["references"] ?? "")
+        let tags = parseList(metadata["tags"] ?? "")
+        let activities = parseList(metadata["activities"] ?? "")
+        let sourceTree = metadata["source_tree"].flatMap { $0.isEmpty ? nil : $0 }
+        let relatedFiles = parseList(metadata["related_files"] ?? "")
 
         let startOffset = (weekNumber - 1) * configuration.phaseLabels.count
         let days = configuration.phaseLabels.enumerated().map { index, phase in
@@ -145,7 +186,11 @@ enum StudyVaultLoader {
             references: references,
             glossary: glossary,
             studyText: document.body.trimmingCharacters(in: .whitespacesAndNewlines),
-            days: days
+            days: days,
+            tags: tags,
+            activities: activities,
+            sourceTree: sourceTree,
+            relatedFiles: relatedFiles
         )
     }
 
