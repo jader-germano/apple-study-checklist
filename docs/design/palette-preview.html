@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paleta Glass — AppleStudyChecklist</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 1080px; margin: 0 auto; padding: 48px 24px; }
+
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  .subtitle { font-size: 15px; margin-bottom: 40px; }
+  h2 { font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 16px; }
+  h3 { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+  .section { margin-bottom: 52px; }
+
+  /* ---------- GLASS ---------- */
+  .glass {
+    border-radius: 16px;
+    backdrop-filter: blur(40px) saturate(1.4);
+    -webkit-backdrop-filter: blur(40px) saturate(1.4);
+  }
+  .glass-light {
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.8);
+  }
+  .glass-dark {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  /* ===================== REFERENCE SECTION ===================== */
+  .ref-section {
+    background:
+      radial-gradient(ellipse at 20% 40%, rgba(217,119,87,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 60%, rgba(16,163,127,0.05) 0%, transparent 50%),
+      #F5F3F0;
+    padding: 48px 24px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .ref-section h1 { color: #3A3530; }
+  .ref-section .subtitle { color: #8A8078; }
+  .ref-section h2 { color: #9A9088; }
+
+  .ref-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  .ref-card {
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ref-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .ref-card .brand { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .ref-card .tagline { font-size: 12px; margin-bottom: 20px; opacity: 0.7; }
+  .ref-colors { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ref-dot {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; font-family: 'SF Mono', monospace;
+    position: relative; overflow: hidden;
+  }
+  .ref-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .ref-dot span { position: relative; z-index: 1; }
+
+  /* Arrow / bridge */
+  .bridge { text-align: center; padding: 20px 0; }
+  .bridge-arrow { font-size: 24px; color: #C49A6C; }
+  .bridge-text { font-size: 13px; color: #9A9088; margin-top: 4px; }
+
+  /* ===================== LIGHT SECTION ===================== */
+  .light-section {
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(196,154,108,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, rgba(133,163,148,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(212,197,176,0.12) 0%, transparent 50%),
+      #F7F3EF;
+    padding: 48px 24px;
+  }
+  .light-section h1 { color: #3A3530; }
+  .light-section .subtitle { color: #8A8078; }
+  .light-section h2 { color: #9A9088; }
+  .light-section h3 { color: #5A5550; }
+
+  /* ===================== DARK SECTION ===================== */
+  .dark-section {
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(196,154,108,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 60%, rgba(133,163,148,0.03) 0%, transparent 50%),
+      #17171A;
+    padding: 48px 24px;
+  }
+  .dark-section h1 { color: rgba(255,255,255,0.88); }
+  .dark-section .subtitle { color: rgba(255,255,255,0.35); }
+  .dark-section h2 { color: rgba(255,255,255,0.30); }
+  .dark-section h3 { color: rgba(255,255,255,0.70); }
+
+  /* ---------- SWATCHES ---------- */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+  .swatch { overflow: hidden; }
+  .swatch-color {
+    height: 72px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px 12px;
+    position: relative;
+  }
+  .swatch-color::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.20) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .swatch-color span {
+    font-size: 11px; font-weight: 600; font-family: 'SF Mono', monospace;
+    padding: 2px 6px; border-radius: 4px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    position: relative; z-index: 1;
+  }
+  .swatch-info { padding: 10px 12px; }
+  .swatch-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .light-section .swatch-name { color: #3A3530; }
+  .dark-section .swatch-name { color: rgba(255,255,255,0.88); }
+  .swatch-use { font-size: 11px; line-height: 1.4; }
+  .light-section .swatch-use { color: #9A9088; }
+  .dark-section .swatch-use { color: rgba(255,255,255,0.35); }
+  .swatch-origin { font-size: 10px; font-weight: 600; margin-top: 3px; letter-spacing: 0.3px; }
+
+  /* ---------- CHIPS ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ---------- PROGRESS ---------- */
+  .progress-demo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .progress-card { padding: 18px; }
+  .progress-card .state {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .light-section .state { color: #A09890; }
+  .dark-section .state { color: rgba(255,255,255,0.28); }
+  .progress-card .week { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .light-section .week { color: #3A3530; }
+  .dark-section .week { color: rgba(255,255,255,0.88); }
+  .progress-card .pct { font-size: 12px; margin-bottom: 12px; }
+  .light-section .pct { color: #A09890; }
+  .dark-section .pct { color: rgba(255,255,255,0.30); }
+  .progress-bar { height: 4px; border-radius: 2px; overflow: hidden; }
+  .light-section .progress-bar { background: rgba(0,0,0,0.05); }
+  .dark-section .progress-bar { background: rgba(255,255,255,0.05); }
+  .progress-fill { height: 100%; border-radius: 2px; }
+  .checkmark {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; margin-top: 8px;
+    padding: 3px 9px; border-radius: 8px;
+  }
+
+  /* ---------- TOOLBAR ---------- */
+  .toolbar-mock {
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .toolbar-mock .tab {
+    font-size: 13px; font-weight: 600;
+    padding: 7px 18px; border-radius: 10px;
+  }
+
+  /* ---------- MOCK APP ---------- */
+  .app-mock {
+    border-radius: 24px;
+    overflow: hidden;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+  .app-mock-header {
+    padding: 16px 20px 12px;
+  }
+  .app-mock-header .app-title { font-size: 22px; font-weight: 700; }
+  .app-mock-header .app-sub { font-size: 12px; margin-top: 2px; }
+  .app-mock-list { padding: 0 12px 16px; }
+  .app-mock-row {
+    padding: 14px 12px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+  }
+  .app-mock-row .row-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .app-mock-row .row-sub { font-size: 12px; margin-bottom: 8px; }
+  .app-mock-row .row-bar { height: 3px; border-radius: 2px; overflow: hidden; }
+  .app-mock-row .row-fill { height: 100%; border-radius: 2px; }
+
+  .mocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+</style>
+</head>
+<body>
+
+<!-- ===================== REFERENCE ===================== -->
+<div class="ref-section">
+<div class="container">
+  <h1>Referências de cor</h1>
+  <p class="subtitle">Cores originais do Claude e Codex como ponto de partida, convergindo na paleta do app.</p>
+
+  <div class="ref-grid">
+    <!-- CLAUDE -->
+    <div class="ref-card" style="background:linear-gradient(135deg, #FAF6F1 0%, #F5EDE4 100%); border:1px solid rgba(217,119,87,0.15);">
+      <div class="brand" style="color:#D97757">Claude</div>
+      <div class="tagline" style="color:#A08070">Anthropic — terracota quente</div>
+      <div class="ref-colors">
+        <div class="ref-dot" style="background:rgba(217,119,87,0.80)"><span style="color:#fff">D977</span></div>
+        <div class="ref-dot" style="background:rgba(217,119,87,0.50)"><span style="color:#fff">50%</span></div>
+        <div class="ref-dot" style="background:rgba(217,119,87,0.20)"><span style="color:#8A5540">20%</span></div>
+        <div class="ref-dot" style="background:#FAF6F1; border:1px solid rgba(0,0,0,0.06)"><span style="color:#999">bg</span></div>
+        <div class="ref-dot" style="background:#3D3029"><span style="color:#D4A88A">dark</span></div>
+      </div>
+    </div>
+
+    <!-- CODEX -->
+    <div class="ref-card" style="background:linear-gradient(135deg, #F2F4F6 0%, #EAECF0 100%); border:1px solid rgba(110,123,139,0.15);">
+      <div class="brand" style="color:#6E7B8B">Codex</div>
+      <div class="tagline" style="color:#808890">OpenAI — cinza azulado</div>
+      <div class="ref-colors">
+        <div class="ref-dot" style="background:rgba(110,123,139,0.80)"><span style="color:#fff">6E7B</span></div>
+        <div class="ref-dot" style="background:rgba(110,123,139,0.50)"><span style="color:#fff">50%</span></div>
+        <div class="ref-dot" style="background:rgba(110,123,139,0.15)"><span style="color:#4A5565">15%</span></div>
+        <div class="ref-dot" style="background:#F2F4F6; border:1px solid rgba(0,0,0,0.06)"><span style="color:#999">bg</span></div>
+        <div class="ref-dot" style="background:#1A1A1E"><span style="color:#8B9AAD">dark</span></div>
+      </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div class="ref-card" style="background:linear-gradient(135deg, #F7F3EF 0%, #F0EBE4 100%); border:1px solid rgba(196,154,108,0.18);">
+      <div class="brand" style="color:#C49A6C">Checklist</div>
+      <div class="tagline" style="color:#9A9088">JPGLabs — caramelo + sálvia</div>
+      <div class="ref-colors">
+        <div class="ref-dot" style="background:rgba(196,154,108,0.75)"><span style="color:#fff">C49A</span></div>
+        <div class="ref-dot" style="background:rgba(133,163,148,0.70)"><span style="color:#fff">85A3</span></div>
+        <div class="ref-dot" style="background:rgba(196,154,108,0.15)"><span style="color:#8A7050">15%</span></div>
+        <div class="ref-dot" style="background:#F7F3EF; border:1px solid rgba(0,0,0,0.06)"><span style="color:#999">bg</span></div>
+        <div class="ref-dot" style="background:#17171A"><span style="color:#C49A6C">dark</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bridge">
+    <div class="bridge-text" style="margin-bottom:12px">Convergência: terracota Claude → caramelo · cinza-azul Codex → steel · verde Gemini → sage</div>
+    <div style="display:flex; justify-content:center; align-items:center; gap:16px;">
+      <div style="display:flex; gap:4px;">
+        <div style="width:28px;height:28px;border-radius:7px;background:rgba(217,119,87,0.60)"></div>
+        <div style="width:28px;height:28px;border-radius:7px;background:rgba(217,119,87,0.30)"></div>
+      </div>
+      <span style="color:#B0A898; font-size:18px;">→</span>
+      <div style="width:32px;height:32px;border-radius:8px;background:rgba(196,154,108,0.75); box-shadow: 0 2px 8px rgba(196,154,108,0.25);"></div>
+      <span style="color:#B0A898; font-size:14px; padding:0 4px;">accent</span>
+      <div style="width:32px;height:32px;border-radius:8px;background:rgba(139,157,173,0.70); box-shadow: 0 2px 8px rgba(139,157,173,0.20);"></div>
+      <span style="color:#B0A898; font-size:18px;">←</span>
+      <div style="display:flex; gap:4px;">
+        <div style="width:28px;height:28px;border-radius:7px;background:rgba(110,123,139,0.30)"></div>
+        <div style="width:28px;height:28px;border-radius:7px;background:rgba(110,123,139,0.60)"></div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:center; align-items:center; gap:12px; margin-top:12px;">
+      <span style="font-size:11px; color:#A08070;">Claude terracota</span>
+      <div style="width:32px;height:32px;border-radius:8px;background:rgba(133,163,148,0.70); box-shadow: 0 2px 8px rgba(133,163,148,0.25);"></div>
+      <span style="color:#B0A898; font-size:14px; padding:0 4px;">sage</span>
+      <div style="width:32px;height:32px;border-radius:8px;background:rgba(74,155,126,0.60); box-shadow: 0 2px 8px rgba(74,155,126,0.20);"></div>
+      <span style="font-size:11px; color:#4A8A6E;">Gemini verde</span>
+    </div>
+    <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:8px;">
+      <span style="font-size:11px; color:#6E7B8B;">Codex cinza-azul</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===================== LIGHT ===================== -->
+<div class="light-section">
+<div class="container">
+  <h1>Paleta Glass — Light</h1>
+  <p class="subtitle">Vidro quente sobre fundo bege. Accent caramelo (← terracota Claude), sage (← verde Codex).</p>
+
+  <div class="section">
+    <h2>Accent — inspirado em Claude</h2>
+    <div class="swatches">
+      <div class="swatch glass glass-light">
+        <div class="swatch-color" style="background:rgba(196,154,108,0.75)"><span style="color:#fff">#C49A6C</span></div>
+        <div class="swatch-info">
+          <div class="swatch-name">accent</div>
+          <div class="swatch-use">Tint geral do app</div>
+          <div class="swatch-origin" style="color:#C49A6C">← Claude #D97757 suavizado</div>
+        </div>
+      </div>
+      <div class="swatch glass glass-light">
+        <div class="swatch-color" style="background:rgba(212,173,128,0.65)"><span style="color:#fff">#D4AD80</span></div>
+        <div class="swatch-info">
+          <div class="swatch-name">accentHi</div>
+          <div class="swatch-use">Gradiente de acento</div>
+        </div>
+      </div>
+      <div class="swatch glass glass-light">
+        <div class="swatch-color" style="background:rgba(232,213,192,0.50)"><span style="color:#6B5A48">#E8D5C0</span></div>
+        <div class="swatch-info">
+          <div class="swatch-name">accentSoft</div>
+          <div class="swatch-use">Fundo de badge / chip</div>
+        </div>
+      </div>
+      <div class="swatch glass glass-light">
+        <div class="swatch-color" style="background:rgba(212,197,176,0.45)"><span style="color:#5A5044">#D4C5B0</span></div>
+        <div class="swatch-info">
+          <div class="swatch-name">sand</div>
+          <div class="swatch-use">Tom neutro decorativo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Semânticas — sage inspirado em Codex</h2>
+    <div class="swatches">
+      <div class="swatch glass glass-light">
+        <div class="swatch-color" style="background:rgba(133,163,148,0.65)"><span style="color:#fff">#85A394</span></div>
+        <div class="swatch-info">
+          <div class="swatch-name">sage</div>
+          <div class="swatch-use">Conclusão, checkmarks</div>
+          <div class="swatch-origin" style="color:#85A394">← Codex #10A37F suavizado</div>
+        </div>
+      </div>
+      <div class="swatch glass glass-light">
+        <div class="swatch-color" style="background:rgba(139,157,173,0.55)"><span style="color:#fff">#8B9DAD</span></div>
+        <div class="swatch-info">
+          <div class="swatch-name">steel</div>
+          <div class="swatch-use">Informativo, links</div>
+        </div>
+      </div>
+      <div class="swatch glass glass-light">
+        <div class="swatch-color" style="background:rgba(153,144,184,0.50)"><span style="color:#fff">#9990B8</span></div>
+        <div class="swatch-info">
+          <div class="swatch-name">lavender</div>
+          <div class="swatch-use">Destaque terciário</div>
+        </div>
+      </div>
+      <div class="swatch glass glass-light">
+        <div class="swatch-color" style="background:rgba(191,128,128,0.55)"><span style="color:#fff">#BF8080</span></div>
+        <div class="swatch-info">
+          <div class="swatch-name">rose</div>
+          <div class="swatch-use">Erros, alertas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Provider chips — glass tintado</h2>
+    <div class="chips">
+      <div class="chip" style="background:rgba(196,154,108,0.12); color:#9A7550; border:1px solid rgba(196,154,108,0.18);">
+        <div class="dot" style="background:#C49A6C"></div> Semana ativa
+      </div>
+      <div class="chip" style="background:rgba(133,163,148,0.12); color:#5E7A6C; border:1px solid rgba(133,163,148,0.18);">
+        <div class="dot" style="background:#85A394"></div> Concluída
+      </div>
+      <div class="chip" style="background:rgba(217,119,87,0.10); color:#A05838; border:1px solid rgba(217,119,87,0.15);">
+        <div class="dot" style="background:rgba(217,119,87,0.75)"></div> Claude
+      </div>
+      <div class="chip" style="background:rgba(110,123,139,0.10); color:#4A5565; border:1px solid rgba(110,123,139,0.14);">
+        <div class="dot" style="background:rgba(110,123,139,0.70)"></div> Codex
+      </div>
+      <div class="chip" style="background:rgba(74,155,126,0.10); color:#2E7A5E; border:1px solid rgba(74,155,126,0.14);">
+        <div class="dot" style="background:rgba(74,155,126,0.70)"></div> Gemini
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Progress States</h2>
+    <div class="progress-demo">
+      <div class="progress-card glass glass-light">
+        <div class="state">Locked</div>
+        <div class="week">Semana 8</div>
+        <div class="pct">0%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="progress-card glass glass-light">
+        <div class="state">Active</div>
+        <div class="week">Semana 3</div>
+        <div class="pct">57%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:57%;background:rgba(196,154,108,0.65)"></div></div>
+      </div>
+      <div class="progress-card glass glass-light">
+        <div class="state">Complete</div>
+        <div class="week">Semana 1</div>
+        <div class="pct">100%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%;background:rgba(133,163,148,0.65)"></div></div>
+        <div class="checkmark" style="color:#5E7A6C; background:rgba(133,163,148,0.10);">✓ Concluída</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>App mock — Light</h2>
+    <div class="app-mock glass glass-light" style="border:1px solid rgba(0,0,0,0.06);">
+      <div class="app-mock-header">
+        <div class="app-title" style="color:#3A3530">Checklist</div>
+        <div class="app-sub" style="color:#A09890">12 semanas · 28 mar — 18 jun</div>
+      </div>
+      <div class="app-mock-list">
+        <div class="app-mock-row" style="background:rgba(133,163,148,0.08);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="row-title" style="color:#3A3530">Semana 1 — Darwin</div>
+            <span style="font-size:11px;font-weight:600;color:#5E7A6C;background:rgba(133,163,148,0.12);padding:2px 8px;border-radius:6px;">✓</span>
+          </div>
+          <div class="row-sub" style="color:#A09890">Fundamentos do sistema operacional</div>
+          <div class="row-bar" style="background:rgba(0,0,0,0.04)"><div class="row-fill" style="width:100%;background:rgba(133,163,148,0.55);border-radius:2px;"></div></div>
+        </div>
+        <div class="app-mock-row" style="background:rgba(196,154,108,0.06);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="row-title" style="color:#3A3530">Semana 2 — Threads</div>
+            <span style="font-size:11px;font-weight:500;color:#A09890;">57%</span>
+          </div>
+          <div class="row-sub" style="color:#A09890">Concorrência e dispatch</div>
+          <div class="row-bar" style="background:rgba(0,0,0,0.04)"><div class="row-fill" style="width:57%;background:rgba(196,154,108,0.55);border-radius:2px;"></div></div>
+        </div>
+        <div class="app-mock-row" style="background:rgba(0,0,0,0.015);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="row-title" style="color:#3A3530">Semana 3 — Sandbox</div>
+            <span style="font-size:11px;font-weight:500;color:#C4C0BB;">0%</span>
+          </div>
+          <div class="row-sub" style="color:#A09890">Segurança e permissões</div>
+          <div class="row-bar" style="background:rgba(0,0,0,0.04)"><div class="row-fill" style="width:0%;border-radius:2px;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===================== DARK ===================== -->
+<div class="dark-section">
+<div class="container">
+  <h1>Paleta Glass — Dark</h1>
+  <p class="subtitle">Cinza neutro, vidro escuro, mesmas cores com opacidade adaptada.</p>
+
+  <div class="section">
+    <h2>Provider chips — dark glass</h2>
+    <div class="chips">
+      <div class="chip" style="background:rgba(196,154,108,0.14); color:#D4AD80; border:1px solid rgba(196,154,108,0.18);">
+        <div class="dot" style="background:#C49A6C"></div> Semana ativa
+      </div>
+      <div class="chip" style="background:rgba(133,163,148,0.12); color:#A3C4B4; border:1px solid rgba(133,163,148,0.16);">
+        <div class="dot" style="background:#85A394"></div> Concluída
+      </div>
+      <div class="chip" style="background:rgba(217,119,87,0.12); color:#E0967A; border:1px solid rgba(217,119,87,0.15);">
+        <div class="dot" style="background:rgba(217,119,87,0.80)"></div> Claude
+      </div>
+      <div class="chip" style="background:rgba(110,123,139,0.12); color:#9AAABB; border:1px solid rgba(110,123,139,0.16);">
+        <div class="dot" style="background:rgba(110,123,139,0.75)"></div> Codex
+      </div>
+      <div class="chip" style="background:rgba(74,155,126,0.12); color:#6ECCAA; border:1px solid rgba(74,155,126,0.16);">
+        <div class="dot" style="background:rgba(74,155,126,0.75)"></div> Gemini
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Progress States</h2>
+    <div class="progress-demo">
+      <div class="progress-card glass glass-dark">
+        <div class="state">Locked</div>
+        <div class="week">Semana 8</div>
+        <div class="pct">0%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="progress-card glass glass-dark">
+        <div class="state">Active</div>
+        <div class="week">Semana 3</div>
+        <div class="pct">57%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:57%;background:rgba(196,154,108,0.70)"></div></div>
+      </div>
+      <div class="progress-card glass glass-dark">
+        <div class="state">Complete</div>
+        <div class="week">Semana 1</div>
+        <div class="pct">100%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%;background:rgba(133,163,148,0.70)"></div></div>
+        <div class="checkmark" style="color:#A3C4B4; background:rgba(133,163,148,0.10);">✓ Concluída</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>App mock — Dark</h2>
+    <div class="app-mock glass glass-dark">
+      <div class="app-mock-header">
+        <div class="app-title" style="color:rgba(255,255,255,0.88)">Checklist</div>
+        <div class="app-sub" style="color:rgba(255,255,255,0.30)">12 semanas · 28 mar — 18 jun</div>
+      </div>
+      <div class="app-mock-list">
+        <div class="app-mock-row" style="background:rgba(133,163,148,0.06);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="row-title" style="color:rgba(255,255,255,0.88)">Semana 1 — Darwin</div>
+            <span style="font-size:11px;font-weight:600;color:#A3C4B4;background:rgba(133,163,148,0.12);padding:2px 8px;border-radius:6px;">✓</span>
+          </div>
+          <div class="row-sub" style="color:rgba(255,255,255,0.35)">Fundamentos do sistema operacional</div>
+          <div class="row-bar" style="background:rgba(255,255,255,0.04)"><div class="row-fill" style="width:100%;background:rgba(133,163,148,0.55);border-radius:2px;"></div></div>
+        </div>
+        <div class="app-mock-row" style="background:rgba(196,154,108,0.05);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="row-title" style="color:rgba(255,255,255,0.88)">Semana 2 — Threads</div>
+            <span style="font-size:11px;font-weight:500;color:rgba(255,255,255,0.35);">57%</span>
+          </div>
+          <div class="row-sub" style="color:rgba(255,255,255,0.35)">Concorrência e dispatch</div>
+          <div class="row-bar" style="background:rgba(255,255,255,0.04)"><div class="row-fill" style="width:57%;background:rgba(196,154,108,0.55);border-radius:2px;"></div></div>
+        </div>
+        <div class="app-mock-row" style="background:rgba(255,255,255,0.02);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="row-title" style="color:rgba(255,255,255,0.88)">Semana 3 — Sandbox</div>
+            <span style="font-size:11px;font-weight:500;color:rgba(255,255,255,0.20);">0%</span>
+          </div>
+          <div class="row-sub" style="color:rgba(255,255,255,0.35)">Segurança e permissões</div>
+          <div class="row-bar" style="background:rgba(255,255,255,0.04)"><div class="row-fill" style="width:0%;border-radius:2px;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+</body>
+</html>

@@ -31,11 +31,11 @@ label_plan_tab: Roadmap
 label_vault_tab: Notes
 label_language_en: Language
 task_read_title_en: Read the main topic block
-task_read_note_template_en: Focus on {title_lowercased} and write down the weak terms.
+task_read_note_template_en: During {phase_lowercased}, focus on {title_lowercased} and write down the weak terms.
 task_practice_title_en: Run a practical activity
-task_practice_note_template_en: Connect the reading to practice using the objective: {objective}
+task_practice_note_template_en: In {phase_lowercased}, connect the reading to practice using the objective: {objective}
 task_record_title_en: Record an objective output
-task_record_note_template_en: Update your notes with a verifiable result: {deliverable}
+task_record_note_template_en: Close {phase_lowercased} by updating your notes with a verifiable result: {deliverable}
 ---
 Config body
 """.write(
@@ -76,6 +76,66 @@ references: Foundation|https://developer.apple.com/documentation/foundation
 Week 2 body
 """.write(
             to: rootURL.appendingPathComponent("Weeks", isDirectory: true).appendingPathComponent("week-02.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+    }
+
+    deinit {
+        try? FileManager.default.removeItem(at: rootURL)
+    }
+}
+
+final class MetadataVaultFixture {
+    let rootURL: URL
+
+    init() throws {
+        rootURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(
+            at: rootURL.appendingPathComponent("Config", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createDirectory(
+            at: rootURL.appendingPathComponent("Weeks", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+
+        try """
+---
+title: Metadata Track
+start_date: 2026-04-01
+schedule_label: Bloco sugerido: 08:00-09:30
+day_title_prefix: Dia
+phase_labels: Leitura|Prática|Revisão
+label_plan_tab: Plano
+label_vault_tab: Vault
+---
+Config body
+""".write(
+            to: rootURL.appendingPathComponent("Config", isDirectory: true).appendingPathComponent("app-config.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        try """
+---
+week_number: 1
+title: SwiftUI Lifecycle
+objective: Build views and manage state
+deliverable: A working SwiftUI app
+glossary: SwiftUI|State|Binding
+references: SwiftUI|https://developer.apple.com/swiftui/
+tags: swiftui|state|bindings|lifecycle
+source_tree: docs-tree/apple-platform-foundations
+source_nodes: 07-swiftui-lifecycle-state.md
+related_files: 08-appkit-interoperabilidade.md
+activities: build-view|manage-state
+---
+Week 1 body with metadata
+""".write(
+            to: rootURL.appendingPathComponent("Weeks", isDirectory: true).appendingPathComponent("week-01.md"),
             atomically: true,
             encoding: .utf8
         )
@@ -134,6 +194,20 @@ final class ProgressFixture {
 
     deinit {
         defaults.removePersistentDomain(forName: suiteName)
+        try? FileManager.default.removeItem(at: rootURL)
+    }
+}
+
+final class TemporaryDirectoryFixture {
+    let rootURL: URL
+
+    init() throws {
+        rootURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
+    }
+
+    deinit {
         try? FileManager.default.removeItem(at: rootURL)
     }
 }

@@ -2,9 +2,9 @@
 
 ## Visão geral
 
-The repository organizes documents by category and scope so larger systems can grow without losing traceability.
+O repositório organiza documentos por categoria e escopo para que sistemas maiores cresçam sem perder rastreabilidade.
 
-Current categories:
+Categorias atuais:
 
 - Product
 - Design
@@ -13,12 +13,13 @@ Current categories:
 - API
 - Reference
 
-Each important document should point back to:
+Cada documento importante deve apontar de volta para:
 
-- the code it describes
-- the tests that verify it
-- the DocC article or API-facing page that mirrors the contract
+- o código que ele descreve
+- os testes que o verificam
+- o artigo DocC ou a página de API que espelha o contrato
 
 ## Veja também
 
-- <doc:APIDoWorkspaceDoVault>
+- <doc:VaultWorkspaceAPI>
+- <doc:AntigravitySessionHub>

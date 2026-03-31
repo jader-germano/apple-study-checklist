@@ -24,8 +24,13 @@ targets:
       base:
         PRODUCT_NAME: AppleStudyChecklistiOSApp
         PRODUCT_BUNDLE_IDENTIFIER: com.jpglabs.applestudychecklist
+        CURRENT_PROJECT_VERSION: 2
+        MARKETING_VERSION: 0.0.2
+        VERSIONING_SYSTEM: apple-generic
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: Apple Study Checklist
+        INFOPLIST_KEY_CFBundleShortVersionString: $(MARKETING_VERSION)
+        INFOPLIST_KEY_CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
           - UIInterfaceOrientationPortrait

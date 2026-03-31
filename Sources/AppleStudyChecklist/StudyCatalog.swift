@@ -199,7 +199,11 @@ enum StudyCatalog {
             references: blueprint.references,
             glossary: blueprint.glossary,
             studyText: blueprint.objective,
-            days: days
+            days: days,
+            tags: [],
+            activities: [],
+            sourceTree: nil,
+            relatedFiles: []
         )
     }
 

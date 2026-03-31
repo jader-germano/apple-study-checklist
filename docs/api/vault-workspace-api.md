@@ -43,6 +43,8 @@ Responsabilidades voltadas à UI:
 - expor `vaultFiles`, `selectedFile`, `selectedFileContent`
 - expor `sourceDescription`, `isVaultEditable`, `vaultState`
 - persistir progresso, aparência e idioma
+- criar uma cópia local editável do vault embutido
+- suportar carga direta de vault externo por URL quando o fluxo não depende do bookmark persistido
 
 ### StudyVaultLoader
 
@@ -72,8 +74,34 @@ Valores atuais:
 O workspace atual pode vir de:
 
 - vault embutido
-- cópia local editável em Application Support
+- cópia local editável em Application Support por padrão
 - pasta externa importada pelo seletor
+
+Observação operacional:
+
+- a implementação permite injeção do destino do vault editável para testes e validação, evitando colisão entre execuções paralelas
+- o fluxo persistente de vault externo continua sendo o caminho com bookmark salvo em `UserDefaults`
+
+Origem planejada para a próxima camada:
+
+- vault remoto do container, via gateway autenticado e com root restrito
+
+## Superfície remota planejada
+
+Quando a fonte remota for implementada, o contrato deve continuar orientado a arquivos Markdown e não a acesso bruto ao filesystem.
+
+Operações previstas:
+
+- listar arquivos autorizados
+- ler arquivo Markdown
+- salvar arquivo Markdown
+- recarregar conteúdo remoto
+
+Restrições previstas:
+
+- sem acesso a caminhos fora do root permitido
+- sem acesso direto ao container host
+- sem dependência dessa origem para o fluxo local-first
 
 ## Rastreabilidade
 
