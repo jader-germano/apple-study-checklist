@@ -197,3 +197,17 @@ final class ProgressFixture {
         try? FileManager.default.removeItem(at: rootURL)
     }
 }
+
+final class TemporaryDirectoryFixture {
+    let rootURL: URL
+
+    init() throws {
+        rootURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
+    }
+
+    deinit {
+        try? FileManager.default.removeItem(at: rootURL)
+    }
+}

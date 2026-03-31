@@ -41,6 +41,13 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
   - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift build`
 - Testes:
   - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test`
+- Cobertura do núcleo:
+  - `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --enable-code-coverage`
+  - `python3 scripts/check_core_coverage.py "$(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --show-codecov-path)"`
+- Qualidade Swift:
+  - `swiftlint lint --config .swiftlint.yml Apps Sources Tests Package.swift`
+  - ou via container oficial:
+    `docker run --rm -v "$PWD":/work -w /work ghcr.io/realm/swiftlint:latest lint --config .swiftlint.yml Apps Sources Tests Package.swift`
 - Gerar projeto iOS:
   - `xcodegen generate`
 - Build Xcode iOS host:
@@ -65,6 +72,8 @@ App SwiftUI para macOS e iOS voltado a um cronograma técnico de estudo sobre si
 - `docs/engineering/test-architecture.md`
 - `docs/product/roadmap.md`
 - `docs/product/implementation-plan.md`
+- `docs/product/git-migration-plan.md`
+- `docs/product/gitlab-repo-checklist.md`
 - `docs/product/user-story-map.md`
 - `docs/product/dos-and-donts.md`
 - `docs/product/README.md`

@@ -21,6 +21,8 @@ final class StudyStore: ObservableObject {
     private let defaults: UserDefaults
     private let bundledVaultURL: URL?
     private let editableVaultURL: URL
+    private let makeBookmarkData: (URL) throws -> Data
+    private let resolveBookmarkData: (Data, inout Bool) throws -> URL
 
     private enum DefaultsKey {
         static let progress = "study-progress"
@@ -41,12 +43,16 @@ final class StudyStore: ObservableObject {
         defaults: UserDefaults = .standard,
         bundledVaultURL: URL? = StudyVaultLoader.bundledVaultURL(),
         editableVaultURL: URL? = nil,
-        loadWorkspaceOnInit: Bool = true
+        loadWorkspaceOnInit: Bool = true,
+        makeBookmarkData: @escaping (URL) throws -> Data = defaultMakeBookmarkData(for:),
+        resolveBookmarkData: @escaping (Data, inout Bool) throws -> URL = defaultResolveBookmarkData(_:isStale:)
     ) {
         self.saveURL = saveURL ?? Self.makeSaveURL()
         self.defaults = defaults
         self.bundledVaultURL = bundledVaultURL
         self.editableVaultURL = editableVaultURL ?? Self.makeEditableVaultURL()
+        self.makeBookmarkData = makeBookmarkData
+        self.resolveBookmarkData = resolveBookmarkData
         let loadedLanguage = Self.loadLanguage(from: defaults)
         self.appearance = Self.loadAppearance(from: defaults)
         self.language = loadedLanguage
@@ -182,7 +188,7 @@ final class StudyStore: ObservableObject {
                 return
             }
             do {
-                let bookmark = try makeBookmark(for: url)
+                let bookmark = try makeBookmarkData(url)
                 defaults.set(bookmark, forKey: DefaultsKey.externalBookmark)
                 defaults.set(VaultMode.external.rawValue, forKey: DefaultsKey.vaultMode)
                 reloadWorkspace()
@@ -274,10 +280,10 @@ final class StudyStore: ObservableObject {
             }
 
             var isStale = false
-            let url = try resolveBookmark(data, isStale: &isStale)
+            let url = try resolveBookmarkData(data, &isStale)
 
             if isStale {
-                let refreshed = try makeBookmark(for: url)
+                let refreshed = try makeBookmarkData(url)
                 defaults.set(refreshed, forKey: DefaultsKey.externalBookmark)
             }
 
@@ -340,40 +346,6 @@ final class StudyStore: ObservableObject {
         return try operation()
     }
 
-    private func makeBookmark(for url: URL) throws -> Data {
-#if os(macOS)
-        return try url.bookmarkData(
-            options: [.withSecurityScope],
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        )
-#else
-        return try url.bookmarkData(
-            options: [],
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        )
-#endif
-    }
-
-    private func resolveBookmark(_ data: Data, isStale: inout Bool) throws -> URL {
-#if os(macOS)
-        return try URL(
-            resolvingBookmarkData: data,
-            options: [.withSecurityScope],
-            relativeTo: nil,
-            bookmarkDataIsStale: &isStale
-        )
-#else
-        return try URL(
-            resolvingBookmarkData: data,
-            options: [],
-            relativeTo: nil,
-            bookmarkDataIsStale: &isStale
-        )
-#endif
-    }
-
     private static func loadAppearance(from defaults: UserDefaults) -> AppearanceMode {
         guard
             let rawValue = defaults.string(forKey: DefaultsKey.appearance),
@@ -396,20 +368,18 @@ final class StudyStore: ObservableObject {
         return language
     }
 
-    private static func makeSaveURL() -> URL {
-        let fileManager = FileManager.default
-        let baseURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+    static func makeSaveURL(baseURL: URL? = nil, fileManager: FileManager = .default) -> URL {
+        let resolvedBaseURL = baseURL ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        let folderURL = baseURL.appendingPathComponent("AppleStudyChecklist", isDirectory: true)
+        let folderURL = resolvedBaseURL.appendingPathComponent("AppleStudyChecklist", isDirectory: true)
         try? fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
         return folderURL.appendingPathComponent("progress.json")
     }
 
-    private static func makeEditableVaultURL() -> URL {
-        let fileManager = FileManager.default
-        let baseURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+    static func makeEditableVaultURL(baseURL: URL? = nil, fileManager: FileManager = .default) -> URL {
+        let resolvedBaseURL = baseURL ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        let folderURL = baseURL
+        let folderURL = resolvedBaseURL
             .appendingPathComponent("AppleStudyChecklist", isDirectory: true)
             .appendingPathComponent("Vault", isDirectory: true)
         try? fileManager.createDirectory(at: folderURL.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
@@ -419,4 +389,38 @@ final class StudyStore: ObservableObject {
 
 private struct PersistedProgress: Codable {
     let completedTaskIDs: [String]
+}
+
+private func defaultMakeBookmarkData(for url: URL) throws -> Data {
+#if os(macOS)
+    return try url.bookmarkData(
+        options: [.withSecurityScope],
+        includingResourceValuesForKeys: nil,
+        relativeTo: nil
+    )
+#else
+    return try url.bookmarkData(
+        options: [],
+        includingResourceValuesForKeys: nil,
+        relativeTo: nil
+    )
+#endif
+}
+
+private func defaultResolveBookmarkData(_ data: Data, isStale: inout Bool) throws -> URL {
+#if os(macOS)
+    return try URL(
+        resolvingBookmarkData: data,
+        options: [.withSecurityScope],
+        relativeTo: nil,
+        bookmarkDataIsStale: &isStale
+    )
+#else
+    return try URL(
+        resolvingBookmarkData: data,
+        options: [],
+        relativeTo: nil,
+        bookmarkDataIsStale: &isStale
+    )
+#endif
 }

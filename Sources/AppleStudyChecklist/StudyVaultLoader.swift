@@ -43,11 +43,13 @@ enum StudyVaultLoader {
     }
 
     static func bundledVaultURL() -> URL? {
-        guard let resourceURL = Bundle.module.resourceURL else {
+        resolveBundledVaultURL(resourceURL: Bundle.module.resourceURL)
+    }
+
+    static func resolveBundledVaultURL(resourceURL: URL?, fileManager: FileManager = .default) -> URL? {
+        guard let resourceURL else {
             return nil
         }
-
-        let fileManager = FileManager.default
         let nestedVaultURL = resourceURL.appendingPathComponent("Vault", isDirectory: true)
         let nestedConfigURL = nestedVaultURL
             .appendingPathComponent("Config", isDirectory: true)
@@ -390,16 +392,14 @@ enum StudyVaultLoader {
         return normalizedText.contains(normalizedPhase)
     }
 
-    private static func enumerateMarkdownFiles(in rootURL: URL) throws -> [VaultFileEntry] {
-        guard let enumerator = FileManager.default.enumerator(
+    static func enumerateMarkdownFiles(in rootURL: URL) throws -> [VaultFileEntry] {
+        let items = FileManager.default.enumerator(
             at: rootURL,
             includingPropertiesForKeys: [.isRegularFileKey],
             options: [.skipsHiddenFiles]
-        ) else {
-            return []
-        }
+        )?.allObjects ?? []
 
-        return enumerator.compactMap { item in
+        return items.compactMap { item in
             guard let url = item as? URL, url.pathExtension.lowercased() == "md" else { return nil }
             let relativePath = relativePath(from: rootURL, to: url)
             return VaultFileEntry(id: relativePath, relativePath: relativePath, url: url)
@@ -433,7 +433,7 @@ enum StudyVaultLoader {
             .sorted { $0.relativePath < $1.relativePath }
     }
 
-    private static func relativePath(from baseURL: URL, to targetURL: URL) -> String {
+    static func relativePath(from baseURL: URL, to targetURL: URL) -> String {
         let basePath = baseURL.standardizedFileURL.path
         let targetPath = targetURL.standardizedFileURL.path
 

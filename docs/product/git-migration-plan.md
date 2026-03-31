@@ -11,19 +11,23 @@ equipe.
 
 ## Estado atual
 
-Estado validado em `2026-03-29` e `2026-03-30`:
+Estado validado em `2026-03-29` e refinado em `2026-03-30`:
 
-- remoto atual local: `origin -> https://github.com/jader-germano/apple-study-checklist.git`
+- remoto canônico local: `origin -> https://gitlab.com/jader-germano/apple-study-checklist.git`
+- remoto secundário preservado: `github -> https://github.com/jader-germano/apple-study-checklist.git`
 - projeto criado no GitLab: `https://gitlab.com/jader-germano/apple-study-checklist`
 - slug remoto já está no padrão `lowercase-with-hyphens`
 - `glab` instalado e autenticado como `jader-germano`
+- autenticação Git do repositório operando via `glab auth git-credential`
 - importação por `Repository by URL` concluída com sucesso
 
-Resultado real da importação:
+Resultado real após o cutover inicial:
 
-- branches importadas: `main` e `feature/vault-session-refactor`
+- branches operacionais no GitLab: `main`, `develop`, `feature/vault-session-refactor` e `feature/*` atuais
 - projeto público criado em `GitLab`
 - `main` disponível e protegida
+- bootstrap inicial de CI do repositório passou a existir em `.gitlab-ci.yml`
+- gate inicial de qualidade Swift passou a existir com `SwiftLint`
 - merge requests, issues e labels não vieram pelo caminho de importação por URL
 
 ## Estratégia adotada
@@ -82,19 +86,17 @@ Checklist fechado neste ambiente:
 
 - `default_branch`: `main`
 - projeto não está vazio
-- branches visíveis: `main` e `feature/vault-session-refactor`
+- branches visíveis: `main`, `develop` e `feature/*`
 - tags locais: nenhuma
 - tags no GitLab: nenhuma
 - `merge_requests_enabled`: `true`
 - `issues_enabled`: `true`
 - `wiki_enabled`: `true`
-- `import_status`: `finished`
+- `jobs_enabled`: `true`
 
 Lacuna confirmada:
 
-- `0` merge requests importadas
-- `0` issues importadas
-- `0` labels importadas
+- merge requests e issues históricos não vieram do caminho de importação por URL
 
 Status:
 
@@ -111,13 +113,18 @@ Estado já observado:
 - `main` já veio protegida
 - projeto está público
 - `remove_source_branch_after_merge` já está `true`
+- o bootstrap de CI do repositório já existe em `.gitlab-ci.yml`
 
 Pendências para a próxima fatia:
 
 - revisar approval rules conforme o plano gratuito do GitLab
 - recriar labels úteis de fluxo se forem necessárias
-- revisar se `only_allow_merge_if_pipeline_succeeds` deve ser ativado quando a
-  CI do GitLab existir
+- ativar `only_allow_merge_if_pipeline_succeeds` depois que o bootstrap CI
+  estiver verde
+- registrar um runner macOS próprio antes de abrir jobs reais de `Swift` e
+  `Xcode`
+- decidir se o artefato `sonar-swiftlint-report.json` vai alimentar um projeto
+  Sonar posteriormente
 
 Status:
 
@@ -133,6 +140,7 @@ Pendências reais:
 
 - `origin` já aponta para o GitLab no clone local
 - o GitHub foi preservado como remoto secundário `github`
+- `develop` e as branches `feature/*` já podem operar no GitLab
 - arquivar o repositório no GitHub quando o time confirmar que o fluxo principal
   já migrou
 
@@ -158,10 +166,5 @@ Referências internas:
 
 - `docs/product/implementation-plan.md`
 - `docs/product/roadmap.md`
+- `docs/product/gitlab-repo-checklist.md`
 - `docs/reference/markdown-linking-audit.md`
-
-## Referências externas
-
-- GitLab Docs: `https://docs.gitlab.com/user/project/import/repo_by_url/`
-- GitLab Docs: `https://docs.gitlab.com/api/protected_branches/`
-- GitHub Docs: `https://docs.github.com/en/enterprise-server@3.15/repositories/archiving-a-github-repository/archiving-repositories`

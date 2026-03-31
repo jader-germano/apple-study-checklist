@@ -41,14 +41,35 @@ Tests/AppleStudyChecklistTests/
 
 - Cover interactions between store, defaults, progress persistence, and vault fixtures.
 - Use temporary directories and isolated `UserDefaults` suites.
-- When a workflow needs an editable vault copy, inject a per-test vault path instead of relying on a shared `Application Support/AppleStudyChecklist/Vault` location.
 - Name tests after the workflow or state transition they prove.
 
-## Paralelismo
+## Contrato de cobertura
 
-- Integration tests in this repository are expected to remain safe under parallel execution.
-- Avoid shared writable paths across tests, even when the production app uses a fixed default location.
-- Prefer constructor injection or explicit test-only seams for filesystem destinations rather than mutating global process state.
+The repository now enforces `100%` line coverage for the current core scope:
+
+- `Sources/AppleStudyChecklist/Design/ThemeKit.swift`
+- `Sources/AppleStudyChecklist/Models.swift`
+- `Sources/AppleStudyChecklist/StudyCatalog.swift`
+- `Sources/AppleStudyChecklist/StudyStore.swift`
+- `Sources/AppleStudyChecklist/StudyVaultLoader.swift`
+
+Validation flow:
+
+- run `swift test --enable-code-coverage`
+- read the generated SwiftPM JSON path with `swift test --show-codecov-path`
+- validate the scope with `scripts/check_core_coverage.py`
+
+The pure SwiftUI composition files remain outside this `100%` gate for now:
+
+- `ContentView.swift`
+- `VaultWorkspaceView.swift`
+- `AppleStudyChecklistRootView.swift`
+
+Reason:
+
+- they are thin composition layers
+- they currently need a dedicated UI inspection strategy to turn into stable line-coverage gates
+- the current quality target is to keep business and workflow logic fully covered first
 
 ## Rastreabilidade
 
