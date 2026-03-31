@@ -42,10 +42,14 @@ pipeline_scope_note:
 
 swiftlint_quality:
   stage: quality
-  image: ghcr.io/realm/swiftlint:latest
+  image:
+    name: ghcr.io/realm/swiftlint:latest
+    entrypoint: [""]
   script:
     - |
       status=0
+      printf '[]\n' > gl-code-quality-report.json
+      printf '{ "issues": [] }\n' > sonar-swiftlint-report.json
       swiftlint lint --config .swiftlint.yml Apps Sources Tests Package.swift --reporter codeclimate > gl-code-quality-report.json || status=$?
       swiftlint lint --config .swiftlint.yml Apps Sources Tests Package.swift --reporter sonarqube > sonar-swiftlint-report.json || true
       swiftlint lint --config .swiftlint.yml Apps Sources Tests Package.swift --reporter summary || true
