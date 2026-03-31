@@ -7,6 +7,11 @@ Este repositório está pronto para um fluxo de implementação guiado por Figma
 Este documento é um brief de handoff de design para o repositório, não um
 registro do estado transitório de uma sessão específica do Codex.
 
+Quando a sessão entrar em uma `feature`, o frame ou arquivo usado aqui deve ser
+referenciado no relatório operacional da sessão, junto com as evidências de
+funcionamento em macOS e iOS, no hub em
+`reports/sessions/<feature-id>/<yyyy-mm-dd-session>/`.
+
 A validação operacional do tooling deve acontecer em cada sessão de trabalho,
 antes de depender de leitura de contexto, escrita de design ou handoff de
 componentes.
@@ -17,6 +22,23 @@ Pré-condições mínimas para a próxima sessão de design:
 - uma sessão com escrita de design habilitada para prototipar telas nativas do
   app
 - confirmação do workflow de handoff que será usado naquela sessão
+
+## Validação atual
+
+Validação funcional já confirmada no código atual:
+
+- fallback para vault ausente, vazio ou inválido
+- criação da cópia local editável do vault
+- persistência de edição em arquivo Markdown do vault
+- carga direta de pasta externa para validação do fluxo de workspace
+- escolha de idioma e preferências persistidas no shell atual
+
+Validação ainda pendente no protótipo visual:
+
+- frame ou arquivo real do Figma para leitura e escrita
+- navegação do `Antigravity` com `SessionMenu` e `BrowserSignIn`
+- estados visuais de `fileSync`, `versionSync`, conflito e sessões paralelas
+- composição comparada entre iPhone, iPad e macOS
 
 ## Referência visual
 
@@ -96,6 +118,9 @@ A implementação da entrega deve começar só depois de existir um protótipo n
 - `RemoteVault`
 - `History and Review`
 - `Sync Status`
+
+No estado atual, esse gate permanece aberto para as superfícies de sessão e
+sync, mas o workspace local do vault já está funcionalmente validado no código.
 
 ## Telas para prototipar
 

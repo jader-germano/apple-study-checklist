@@ -20,6 +20,7 @@ final class StudyStore: ObservableObject {
     private let saveURL: URL
     private let defaults: UserDefaults
     private let bundledVaultURL: URL?
+    private let editableVaultURL: URL
 
     private enum DefaultsKey {
         static let progress = "study-progress"
@@ -39,11 +40,13 @@ final class StudyStore: ObservableObject {
         saveURL: URL? = nil,
         defaults: UserDefaults = .standard,
         bundledVaultURL: URL? = StudyVaultLoader.bundledVaultURL(),
+        editableVaultURL: URL? = nil,
         loadWorkspaceOnInit: Bool = true
     ) {
         self.saveURL = saveURL ?? Self.makeSaveURL()
         self.defaults = defaults
         self.bundledVaultURL = bundledVaultURL
+        self.editableVaultURL = editableVaultURL ?? Self.makeEditableVaultURL()
         let loadedLanguage = Self.loadLanguage(from: defaults)
         self.appearance = Self.loadAppearance(from: defaults)
         self.language = loadedLanguage
@@ -151,7 +154,7 @@ final class StudyStore: ObservableObject {
             return
         }
 
-        let targetURL = Self.makeEditableVaultURL()
+        let targetURL = editableVaultURL
         do {
             let manager = FileManager.default
             if manager.fileExists(atPath: targetURL.path) == false {
@@ -187,6 +190,32 @@ final class StudyStore: ObservableObject {
                 lastErrorMessage = error.localizedDescription
             }
         case .failure(let error):
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    func loadExternalVault(at url: URL) {
+        do {
+            let payload = try withScopedAccess(to: url) {
+                try StudyVaultLoader.load(from: url, language: language)
+            }
+            program = payload.workspace.program
+            labels = payload.workspace.labels
+            vaultFiles = payload.files
+            isVaultEditable = true
+            sourceDescription = localizedSourceDescription(.external)
+            vaultState = payload.workspace.program.weeks.isEmpty ? .empty : .ready
+            lastErrorMessage = nil
+            openSelectedFile(relativePath: selectedFile?.relativePath)
+        } catch {
+            program = StudyCatalog.program
+            labels = .localizedDefaults(for: language)
+            vaultFiles = []
+            selectedFile = nil
+            selectedFileContent = ""
+            isVaultEditable = false
+            vaultState = .setupRequired
+            sourceDescription = localizedSourceDescription(.setupRequired)
             lastErrorMessage = error.localizedDescription
         }
     }
@@ -236,8 +265,7 @@ final class StudyStore: ObservableObject {
             }
             return (url, false, localizedSourceDescription(.bundled))
         case .appSupport:
-            let url = Self.makeEditableVaultURL()
-            return (url, true, localizedSourceDescription(.appSupport))
+            return (editableVaultURL, true, localizedSourceDescription(.appSupport))
         case .external:
             guard
                 let data = defaults.data(forKey: DefaultsKey.externalBookmark)

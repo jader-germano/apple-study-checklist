@@ -66,6 +66,7 @@ docs/
 ├── product/
 │   ├── README.md
 │   ├── dos-and-donts.md
+│   ├── git-migration-plan.md
 │   ├── implementation-plan.md
 │   ├── roadmap.md
 │   └── user-story-map.md
@@ -73,6 +74,7 @@ docs/
     ├── README.md
     ├── external-standards.md
     ├── language-standard.md
+    ├── markdown-linking-audit.md
     └── provider-auth-and-sync.md
 ```
 
@@ -90,11 +92,15 @@ flowchart TD
     B --> N["docs/api/antigravity-session-api.md"]
     C --> H["docs/product/user-story-map.md"]
     C --> I["docs/product/dos-and-donts.md"]
+    C --> S["docs/product/git-migration-plan.md"]
     C --> P["docs/product/implementation-plan.md"]
     C --> J["docs/product/roadmap.md"]
+    B --> T["docs/reference/markdown-linking-audit.md"]
     B --> Q["docs/design/themekit-integration.md"]
     B --> R["docs/design/palette-preview.html"]
     H --> J
+    S --> J
+    T --> P
     D --> E
     D --> M
     M --> N
@@ -109,7 +115,8 @@ flowchart TD
 Para um novo sistema ou feature:
 
 1. se a feature mudar navegação, sessão, revisão ou sync, fechar protótipo antes do código
-2. atualizar o documento de produto ou arquitetura mais próximo
-3. adicionar ou ajustar os testes correspondentes
-4. atualizar o documento de API se o contrato mudou
-5. atualizar o catálogo DocC quando a mudança afetar a estrutura para desenvolvimento
+2. declarar entregáveis explícitos da sessão e o pacote de evidências esperado
+3. atualizar o documento de produto ou arquitetura mais próximo
+4. adicionar ou ajustar os testes correspondentes
+5. atualizar o documento de API se o contrato mudou
+6. fechar a sessão de feature com relatório, link de Figma e GIFs de macOS e iOS no hub
