@@ -1,0 +1,59 @@
+stages:
+  - verify
+  - quality
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+default:
+  image: alpine:3.20
+  interruptible: true
+
+repo_contract:
+  stage: verify
+  script:
+    - test -f README.md
+    - test -f Package.swift
+    - test -f project.yml
+    - test -f AppleStudyChecklistHost.xcodeproj/project.pbxproj
+    - test -f Configs/Signing.xcconfig
+    - test -f docs/product/README.md
+    - test -f docs/product/git-migration-plan.md
+    - test -f docs/product/gitlab-repo-checklist.md
+    - test -f docs/product/implementation-plan.md
+    - test -f docs/product/roadmap.md
+
+product_gitlab_contract:
+  stage: verify
+  script:
+    - grep -Fq 'gitlab-repo-checklist.md' docs/product/README.md
+    - grep -q 'glab auth git-credential' docs/product/git-migration-plan.md
+    - grep -q 'Apple Developer' docs/product/gitlab-repo-checklist.md
+    - grep -Fq 'feature/* -> develop -> main' docs/product/gitlab-repo-checklist.md
+
+pipeline_scope_note:
+  stage: verify
+  script:
+    - echo 'Bootstrap pipeline active for repository governance and product documentation.'
+    - echo 'Swift/Xcode jobs remain pending until a dedicated macOS GitLab runner exists.'
+    - echo 'App Store/TestFlight publication remains intentionally out of scope until Apple Developer is available.'
+
+swiftlint_quality:
+  stage: quality
+  image: ghcr.io/realm/swiftlint:latest
+  script:
+    - |
+      status=0
+      swiftlint lint --config .swiftlint.yml Apps Sources Tests Package.swift --reporter codeclimate > gl-code-quality-report.json || status=$?
+      swiftlint lint --config .swiftlint.yml Apps Sources Tests Package.swift --reporter sonarqube > sonar-swiftlint-report.json || true
+      swiftlint lint --config .swiftlint.yml Apps Sources Tests Package.swift --reporter summary || true
+      test "$status" -eq 0
+  artifacts:
+    when: always
+    reports:
+      codequality: gl-code-quality-report.json
+    paths:
+      - gl-code-quality-report.json
+      - sonar-swiftlint-report.json
