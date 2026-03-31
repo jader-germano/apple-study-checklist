@@ -5,6 +5,11 @@ objective: Trabalhar com notificações, import-export, tasks de background e ac
 deliverable: App com exportação e atualização em background minimamente robusta.
 glossary: background task | notification | document | export | import
 references: Background Tasks|https://developer.apple.com/documentation/backgroundtasks || UserNotifications|https://developer.apple.com/documentation/usernotifications || Document-based apps|https://developer.apple.com/documentation/appkit/document-based_applications
+tags: background|eventkit|system-integration|notifications
+source_tree: docs-tree/apple-platform-foundations
+source_nodes: 02-processos-threads.md|09-persistencia-seguranca.md
+related_files: 02-processos-threads.md|09-persistencia-seguranca.md
+activities: schedule-tasks|integrate-calendar
 ---
 Modele o fluxo entre entrada de dados, notificações ao usuário e atualização assíncrona sem comprometer consistência.
 

@@ -73,4 +73,38 @@ final class StudyVaultLoaderTests: XCTestCase {
         XCTAssertTrue(firstDay.tasks.allSatisfy { $0.note.localizedCaseInsensitiveContains(firstDay.phase) })
         XCTAssertTrue(secondDay.tasks.allSatisfy { $0.note.localizedCaseInsensitiveContains(secondDay.phase) })
     }
+
+    func testVaultLoaderParsesTags() throws {
+        let fixture = try MetadataVaultFixture()
+
+        let payload = try StudyVaultLoader.load(from: fixture.rootURL)
+
+        let week = try XCTUnwrap(payload.workspace.program.weeks.first)
+        XCTAssertTrue(week.tags.contains("swiftui"), "Expected 'swiftui' in tags")
+        XCTAssertTrue(week.tags.contains("state"), "Expected 'state' in tags")
+    }
+
+    func testVaultLoaderParsesActivities() throws {
+        let fixture = try MetadataVaultFixture()
+
+        let payload = try StudyVaultLoader.load(from: fixture.rootURL)
+
+        let week = try XCTUnwrap(payload.workspace.program.weeks.first)
+        XCTAssertTrue(week.activities.contains("build-view"), "Expected 'build-view' in activities")
+        XCTAssertTrue(week.activities.contains("manage-state"), "Expected 'manage-state' in activities")
+    }
+
+    func testBundledVaultHasMetadataOnAllWeeks() throws {
+        guard let bundledURL = StudyVaultLoader.bundledVaultURL() else {
+            return XCTFail("Expected bundled vault URL to be available")
+        }
+
+        let payload = try StudyVaultLoader.load(from: bundledURL)
+
+        XCTAssertEqual(payload.workspace.program.weeks.count, 12)
+        for week in payload.workspace.program.weeks {
+            XCTAssertFalse(week.tags.isEmpty, "Week \(week.weekNumber) should have tags")
+            XCTAssertFalse(week.activities.isEmpty, "Week \(week.weekNumber) should have activities")
+        }
+    }
 }

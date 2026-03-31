@@ -168,6 +168,10 @@ enum StudyVaultLoader {
         let deliverable = localizedMetadataValue(metadata, key: "deliverable", suffix: suffix) ?? ""
         let glossary = parseList(metadata["glossary"] ?? "")
         let references = parseReferences(metadata["references"] ?? "")
+        let tags = parseList(metadata["tags"] ?? "")
+        let activities = parseList(metadata["activities"] ?? "")
+        let sourceTree = metadata["source_tree"].flatMap { $0.isEmpty ? nil : $0 }
+        let relatedFiles = parseList(metadata["related_files"] ?? "")
 
         let startOffset = (weekNumber - 1) * configuration.phaseLabels.count
         let days = configuration.phaseLabels.enumerated().map { index, phase in
@@ -195,7 +199,11 @@ enum StudyVaultLoader {
                 localizedMetadataValue(metadata, key: "study_text", suffix: suffix)
                 ?? document.body
             ).trimmingCharacters(in: .whitespacesAndNewlines),
-            days: days
+            days: days,
+            tags: tags,
+            activities: activities,
+            sourceTree: sourceTree,
+            relatedFiles: relatedFiles
         )
     }
 

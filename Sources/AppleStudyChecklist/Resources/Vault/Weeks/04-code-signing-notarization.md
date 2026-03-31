@@ -5,6 +5,11 @@ objective: Entender como um app Apple é assinado, validado e distribuído no ma
 deliverable: Fluxo documentado de assinatura e notarização.
 glossary: codesign | notarization | Developer ID | hardened runtime | provisioning
 references: Code Signing Guide|https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html || Notarizing macOS software|https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution || Developer ID|https://developer.apple.com/developer-id/
+tags: distribution|codesign|notarization|certificates
+source_tree: docs-tree/apple-platform-foundations
+source_nodes: 03-sandbox-entitlements.md|12-testes-performance-release.md
+related_files: 03-sandbox-entitlements.md|12-testes-performance-release.md
+activities: sign-binary|notarize-app
 ---
 Descreva a sequência entre build, assinatura, verificação local, envio para notarização e distribuição para máquinas de terceiros.
 

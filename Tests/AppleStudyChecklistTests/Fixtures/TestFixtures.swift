@@ -86,6 +86,66 @@ Week 2 body
     }
 }
 
+final class MetadataVaultFixture {
+    let rootURL: URL
+
+    init() throws {
+        rootURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(
+            at: rootURL.appendingPathComponent("Config", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createDirectory(
+            at: rootURL.appendingPathComponent("Weeks", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+
+        try """
+---
+title: Metadata Track
+start_date: 2026-04-01
+schedule_label: Bloco sugerido: 08:00-09:30
+day_title_prefix: Dia
+phase_labels: Leitura|Prática|Revisão
+label_plan_tab: Plano
+label_vault_tab: Vault
+---
+Config body
+""".write(
+            to: rootURL.appendingPathComponent("Config", isDirectory: true).appendingPathComponent("app-config.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        try """
+---
+week_number: 1
+title: SwiftUI Lifecycle
+objective: Build views and manage state
+deliverable: A working SwiftUI app
+glossary: SwiftUI|State|Binding
+references: SwiftUI|https://developer.apple.com/swiftui/
+tags: swiftui|state|bindings|lifecycle
+source_tree: docs-tree/apple-platform-foundations
+source_nodes: 07-swiftui-lifecycle-state.md
+related_files: 08-appkit-interoperabilidade.md
+activities: build-view|manage-state
+---
+Week 1 body with metadata
+""".write(
+            to: rootURL.appendingPathComponent("Weeks", isDirectory: true).appendingPathComponent("week-01.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+    }
+
+    deinit {
+        try? FileManager.default.removeItem(at: rootURL)
+    }
+}
+
 final class EmptyVaultFixture {
     let rootURL: URL
 
