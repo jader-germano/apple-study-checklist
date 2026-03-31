@@ -25,6 +25,7 @@ Rastreabilidade atual:
 - Cobrir com testes os fluxos de criar vault editável, conectar pasta externa e salvar arquivo
 - Remover lacunas entre documentação, implementação e comportamento real do workspace
 - Consolidar a navegação e edição de arquivos como fluxo local-first
+- Manter este app como a linha principal de execução até fechar um ciclo útil antes de abrir o próximo produto do portfólio
 
 Referências:
 
@@ -33,6 +34,32 @@ Referências:
 - `docs/architecture/system-overview.md`
 
 ## Próximo
+
+### Infra. Concluir a migração GitHub -> GitLab
+
+- Fechar a janela curta de freeze para corte de colaboração
+- Operar o fluxo principal em `GitLab`
+- Fechar o cutover de remoto e o arquivamento do `GitHub`
+- Recriar no destino a governança que não vier pronta do import
+
+Referências:
+
+- `docs/product/git-migration-plan.md`
+
+### 1. Refatorar o checklist Apple atual para trilha guiada por documentação
+
+- Reestruturar o checklist para nascer da árvore documental e de fontes
+  auxiliares, e não apenas de uma lista semanal linear
+- Centralizar atividades, saídas esperadas e links de origem em blocos mais
+  instrutivos
+- Introduzir expansões para reduzir rolagem excessiva no app
+- Exigir metadata Markdown com `tags` e referências de arquivo para suportar
+  visualização relacional futura
+
+Referências:
+
+- `docs/product/implementation-plan.md`
+- `docs/reference/markdown-linking-audit.md`
 
 ### Fase 0. Prototipar a entrega antes da implementação
 
@@ -77,6 +104,16 @@ Referências:
   possa viver em clientes nativos futuros além de Apple
 - Planejar a expansão futura para Android e Windows sem transformar o app em
   réplica do web app
+
+## Sequência Entre Produtos
+
+- Este app permanece como produto atual prioritário
+- Estratégia de entrega entre produtos:
+  - mobile primeiro
+  - depois desktop/PC
+  - depois web
+- O portfólio entra como próximo produto somente depois do ciclo principal do
+  checklist
 
 Referências:
 

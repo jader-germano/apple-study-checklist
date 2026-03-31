@@ -13,6 +13,9 @@ Escopo deste artefato:
 - amarrar TDD, privacidade, filesystem, EventKit e sessão LLM
 - incorporar o gate de prototipação e os padrões visuais da sessão
   `Claude.app`
+- referenciar a migração operacional `GitHub -> GitLab`
+- preparar a evolução do checklist para uma trilha guiada por árvore
+  documental, expansões e metadata relacional
 
 Fora de escopo neste momento:
 
@@ -47,6 +50,8 @@ Implementação só deve começar após aprovação explícita do usuário: `Ok`
 - não existe bridge para `EventKit` e `Reminders`
 - a UI de sessão planejada ainda não tem design tokens nem linguagem visual
   própria para fluxos tipo `Claude.app`
+- o vault atual ainda não possui `tags` nem metadata suficiente para rastrear
+  origem documental, arquivos relacionados e expansões futuras
 
 ## Decisão de arquitetura
 
@@ -110,6 +115,8 @@ Tipos novos previstos:
 - `WorkspaceStyleCatalog`
 - `SessionPermissionProfile`
 - `ProviderSession`
+- `DocumentSourceNode`
+- `DocumentExpansion`
 
 #### `VaultCore`
 
@@ -135,6 +142,7 @@ Managers e serviços:
 - `VaultBookmarkManager`
 - `VaultScopeManager`
 - `MarkdownDocumentManager`
+- `MarkdownMetadataIndex`
 - `SafeWriteManager`
 - `VaultRelationshipIndex`
 
@@ -309,6 +317,28 @@ Vault/
     └── vault.yml
 ```
 
+### Evolução do contrato Markdown
+
+O checklist Apple atual deve sair do formato semanal linear e passar a ser uma
+trilha baseada na árvore documental do produto e em fontes auxiliares.
+
+Para isso, os arquivos Markdown do vault precisam carregar metadata relacional
+parseável, em vez de apenas texto e referências web.
+
+Campos planejados para a próxima evolução:
+
+- `tags`
+- `source_tree`
+- `source_nodes`
+- `related_files`
+- `auxiliary_sources`
+- `expansion_of`
+- `activities`
+
+Referência de auditoria:
+
+- `docs/reference/markdown-linking-audit.md`
+
 ### Regras desse motor
 
 - o `JSON` descreve hierarquia, slots e bindings
@@ -458,6 +488,15 @@ Cada fatia nasce assim:
 
 ## Fases de implementação
 
+### Marco de infraestrutura. Migrar colaboração para GitLab
+
+Antes do próximo marco de conteúdo, concluir a migração operacional do
+repositório para `GitLab` seguindo o plano dedicado.
+
+Referência:
+
+- `docs/product/git-migration-plan.md`
+
 ### Fase 0. Gate de prototipação e contrato
 
 - consolidar protótipo Figma para checklist editorial, vault e sessão
@@ -498,6 +537,22 @@ Cada fatia nasce assim:
 - reduzir `StudyStore` e aposentar responsabilidades que migrarem para stores
   novas
 - estabilizar internacionalização e tokens de design
+
+### Próximo marco após a migração Git
+
+Refatorar o checklist Apple atual para um formato de estudo mais instrutivo,
+direcional e centrado na árvore documental.
+
+Objetivos desse marco:
+
+- ancorar cada bloco de estudo em nós explícitos da documentação e em fontes
+  auxiliares
+- centralizar atividades e entregáveis por unidade de estudo, não por rolagem
+  linear extensa
+- introduzir expansões de conteúdo para detalhamento progressivo
+- evitar repetição textual no detalhamento diário
+- persistir `tags` e referências de arquivo para futura visualização relacional
+  no app
 
 ## Ordem recomendada de arquivos a nascer
 

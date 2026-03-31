@@ -191,6 +191,32 @@ final class StudyStore: ObservableObject {
         }
     }
 
+    func loadExternalVault(at url: URL) {
+        do {
+            let payload = try withScopedAccess(to: url) {
+                try StudyVaultLoader.load(from: url, language: language)
+            }
+            program = payload.workspace.program
+            labels = payload.workspace.labels
+            vaultFiles = payload.files
+            isVaultEditable = true
+            sourceDescription = localizedSourceDescription(.external)
+            vaultState = payload.workspace.program.weeks.isEmpty ? .empty : .ready
+            lastErrorMessage = nil
+            openSelectedFile(relativePath: selectedFile?.relativePath)
+        } catch {
+            program = StudyCatalog.program
+            labels = .localizedDefaults(for: language)
+            vaultFiles = []
+            selectedFile = nil
+            selectedFileContent = ""
+            isVaultEditable = false
+            vaultState = .setupRequired
+            sourceDescription = localizedSourceDescription(.setupRequired)
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
     func resetToBundledVault() {
         defaults.set(VaultMode.bundled.rawValue, forKey: DefaultsKey.vaultMode)
         defaults.removeObject(forKey: DefaultsKey.externalBookmark)
