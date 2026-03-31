@@ -41,25 +41,20 @@ final class VaultWorkspaceFlowTests: XCTestCase {
     func testCreateEditableVaultFromBundle() throws {
         let fixture = try ProgressFixture()
         let bundledVault = try VaultFixture()
+        let editableVaultURL = fixture.rootURL.appendingPathComponent("editable-vault", isDirectory: true)
 
         let store = StudyStore(
             saveURL: fixture.saveURL,
             defaults: fixture.defaults,
             bundledVaultURL: bundledVault.rootURL,
+            editableVaultURL: editableVaultURL,
             loadWorkspaceOnInit: true
         )
 
         // Precondition: starts as bundled (not editable)
         XCTAssertFalse(store.isVaultEditable)
 
-        // Compute the expected destination path
         let fileManager = FileManager.default
-        let appSupportBase = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let editableVaultURL = appSupportBase
-            .appendingPathComponent("AppleStudyChecklist", isDirectory: true)
-            .appendingPathComponent("Vault", isDirectory: true)
-
-        // Remove any pre-existing copy so the test is deterministic
         if fileManager.fileExists(atPath: editableVaultURL.path) {
             try fileManager.removeItem(at: editableVaultURL)
         }
@@ -83,21 +78,17 @@ final class VaultWorkspaceFlowTests: XCTestCase {
     func testSaveFileInEditableVault() throws {
         let fixture = try ProgressFixture()
         let bundledVault = try VaultFixture()
+        let editableVaultURL = fixture.rootURL.appendingPathComponent("editable-vault", isDirectory: true)
 
         let store = StudyStore(
             saveURL: fixture.saveURL,
             defaults: fixture.defaults,
             bundledVaultURL: bundledVault.rootURL,
+            editableVaultURL: editableVaultURL,
             loadWorkspaceOnInit: true
         )
 
-        // Compute the editable vault destination
         let fileManager = FileManager.default
-        let appSupportBase = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let editableVaultURL = appSupportBase
-            .appendingPathComponent("AppleStudyChecklist", isDirectory: true)
-            .appendingPathComponent("Vault", isDirectory: true)
-
         if fileManager.fileExists(atPath: editableVaultURL.path) {
             try fileManager.removeItem(at: editableVaultURL)
         }

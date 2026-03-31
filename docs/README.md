@@ -115,7 +115,8 @@ flowchart TD
 Para um novo sistema ou feature:
 
 1. se a feature mudar navegação, sessão, revisão ou sync, fechar protótipo antes do código
-2. atualizar o documento de produto ou arquitetura mais próximo
-3. adicionar ou ajustar os testes correspondentes
-4. atualizar o documento de API se o contrato mudou
-5. atualizar o catálogo DocC quando a mudança afetar a estrutura para desenvolvimento
+2. declarar entregáveis explícitos da sessão e o pacote de evidências esperado
+3. atualizar o documento de produto ou arquitetura mais próximo
+4. adicionar ou ajustar os testes correspondentes
+5. atualizar o documento de API se o contrato mudou
+6. fechar a sessão de feature com relatório, link de Figma e GIFs de macOS e iOS no hub

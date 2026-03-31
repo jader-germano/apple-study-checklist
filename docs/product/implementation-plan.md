@@ -454,6 +454,7 @@ Cada fatia nasce assim:
 2. implementação mínima
 3. refactor com testes verdes
 4. atualização documental
+5. evidência operacional em macOS e iOS com relatório de sessão e links de protótipo
 
 ### Suites novas previstas
 
@@ -502,6 +503,9 @@ Referência:
 - consolidar protótipo Figma para checklist editorial, vault e sessão
 - fechar padrões de estilização da sessão `Claude.app`
 - revisar contrato do vault genérico
+- definir entregáveis explícitos por sessão de `feature`
+- exigir pacote de evidências por sessão no hub com `report.md`, `prototype.md`, `macos.gif` e `ios.gif`
+- fechar cada fatia com rastreabilidade entre protótipo, implementação e validação operacional
 - congelar estrutura inicial de `JSON`, `YAML` e `Markdown`
 
 ### Fase 1. Extrair domínio e vault core

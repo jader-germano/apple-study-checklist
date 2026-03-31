@@ -9,6 +9,7 @@ O produto já cobre o núcleo do MVP:
 
 - programa de estudo carregado de Markdown
 - fallback seguro para vault ausente, vazio ou inválido
+- criação de vault editável, save local e carga direta de vault externo cobertos por testes
 - escolha de idioma da interface entre `pt-BR` e `English`
 - host iOS real com domínio compartilhado no pacote Swift
 
@@ -22,9 +23,10 @@ Rastreabilidade atual:
 
 ### 1. Fechar o MVP do vault local
 
-- Cobrir com testes os fluxos de criar vault editável, conectar pasta externa e salvar arquivo
+- Manter cobertos com testes os fluxos de criar vault editável, conectar pasta externa e salvar arquivo
 - Remover lacunas entre documentação, implementação e comportamento real do workspace
 - Consolidar a navegação e edição de arquivos como fluxo local-first
+- Garantir que esses testes permaneçam seguros com paralelismo habilitado
 - Manter este app como a linha principal de execução até fechar um ciclo útil antes de abrir o próximo produto do portfólio
 
 Referências:
@@ -128,6 +130,8 @@ Ao iniciar uma nova fatia:
 
 1. ajustar este roadmap se a prioridade do produto mudou
 2. se a fatia mudar navegação, sessão, revisão ou sync, fechar protótipo antes da implementação
-3. atualizar o documento de produto ou arquitetura mais próximo
-4. atualizar testes e API docs na mesma fatia
-5. registrar a mudança no DocC quando houver impacto no uso por desenvolvedores
+3. declarar entregáveis da sessão e abrir o pacote de evidências correspondente no hub
+4. atualizar o documento de produto ou arquitetura mais próximo
+5. atualizar testes e API docs na mesma fatia
+6. registrar a mudança no DocC quando houver impacto no uso por desenvolvedores
+7. fechar a sessão com relatório, link de Figma e GIFs de macOS e iOS antes de marcar a feature como concluída

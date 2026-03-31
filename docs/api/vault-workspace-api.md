@@ -43,6 +43,8 @@ Responsabilidades voltadas à UI:
 - expor `vaultFiles`, `selectedFile`, `selectedFileContent`
 - expor `sourceDescription`, `isVaultEditable`, `vaultState`
 - persistir progresso, aparência e idioma
+- criar uma cópia local editável do vault embutido
+- suportar carga direta de vault externo por URL quando o fluxo não depende do bookmark persistido
 
 ### StudyVaultLoader
 
@@ -72,8 +74,13 @@ Valores atuais:
 O workspace atual pode vir de:
 
 - vault embutido
-- cópia local editável em Application Support
+- cópia local editável em Application Support por padrão
 - pasta externa importada pelo seletor
+
+Observação operacional:
+
+- a implementação permite injeção do destino do vault editável para testes e validação, evitando colisão entre execuções paralelas
+- o fluxo persistente de vault externo continua sendo o caminho com bookmark salvo em `UserDefaults`
 
 Origem planejada para a próxima camada:
 
