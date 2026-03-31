@@ -7,3 +7,4 @@ Package.resolved
 *.xcuserstate
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
+.claude/

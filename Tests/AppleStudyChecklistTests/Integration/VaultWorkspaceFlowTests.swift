@@ -47,8 +47,8 @@ final class VaultWorkspaceFlowTests: XCTestCase {
             saveURL: fixture.saveURL,
             defaults: fixture.defaults,
             bundledVaultURL: bundledVault.rootURL,
-            editableVaultURL: editableVaultURL,
-            loadWorkspaceOnInit: true
+            loadWorkspaceOnInit: true,
+            editableVaultURL: editableVaultURL
         )
 
         // Precondition: starts as bundled (not editable)
@@ -84,8 +84,8 @@ final class VaultWorkspaceFlowTests: XCTestCase {
             saveURL: fixture.saveURL,
             defaults: fixture.defaults,
             bundledVaultURL: bundledVault.rootURL,
-            editableVaultURL: editableVaultURL,
-            loadWorkspaceOnInit: true
+            loadWorkspaceOnInit: true,
+            editableVaultURL: editableVaultURL
         )
 
         let fileManager = FileManager.default

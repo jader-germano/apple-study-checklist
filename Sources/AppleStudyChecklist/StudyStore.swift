@@ -42,8 +42,8 @@ final class StudyStore: ObservableObject {
         saveURL: URL? = nil,
         defaults: UserDefaults = .standard,
         bundledVaultURL: URL? = StudyVaultLoader.bundledVaultURL(),
-        editableVaultURL: URL? = nil,
         loadWorkspaceOnInit: Bool = true,
+        editableVaultURL: URL? = nil,
         makeBookmarkData: @escaping (URL) throws -> Data = defaultMakeBookmarkData(for:),
         resolveBookmarkData: @escaping (Data, inout Bool) throws -> URL = defaultResolveBookmarkData(_:isStale:)
     ) {
